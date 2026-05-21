@@ -44,9 +44,27 @@ Open **https://larsselstad.github.io/golfreplay/** in Safari on your iPad or iPh
 
 ---
 
+## Node.js version
+
+This project uses [nvm](https://github.com/nvm-sh/nvm) to pin the Node.js version. The required version is specified in `.nvmrc`.
+
+To switch to the correct version:
+
+```bash
+nvm use
+```
+
+If you don't have that version installed yet:
+
+```bash
+nvm install
+```
+
+---
+
 ## Running locally on Mac
 
-1. Make sure [Node.js](https://nodejs.org) is installed
+1. Make sure [Node.js](https://nodejs.org) is installed (see above for the pinned version)
 2. In the project folder, run:
 
 ```bash

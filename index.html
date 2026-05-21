@@ -14,32 +14,32 @@
 <video id="preview" autoplay muted playsinline></video>
 
 <!-- Replay playback — muted because no audio was recorded -->
-<video id="replay" muted playsinline></video>
+<video id="replay" class="hidden" muted playsinline></video>
 
 <!-- HUD -->
 <div id="overlay">
   <div id="status-badge">Ready</div>
 
-  <div id="rec-indicator">
+  <div id="rec-indicator" class="hidden">
     <span class="rec-dot"></span>
     <span id="rec-time">0:00</span>
   </div>
 
-  <div id="countdown"></div>
+  <div id="countdown" class="hidden"></div>
 
-  <div id="replay-info">
+  <div id="replay-info" class="hidden">
     <div id="speed-badge" class="speed-badge">▶ Normal Speed</div>
     <div id="cycle-counter" class="cycle-counter"></div>
   </div>
 
   <div id="instruction">Tap anywhere or press button to start</div>
-  <div id="error-banner"></div>
+  <div id="error-banner" class="hidden"></div>
 
   <button id="settings-btn" aria-label="Settings">⚙</button>
 </div>
 
 <!-- Settings -->
-<div id="settings-backdrop"></div>
+<div id="settings-backdrop" class="hidden"></div>
 <div id="settings-panel" role="dialog" aria-label="Settings">
   <div class="drag-handle"></div>
   <div class="panel-title">Settings</div>

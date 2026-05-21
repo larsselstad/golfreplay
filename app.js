@@ -33,6 +33,7 @@
   let recSecs      = 0;
   let replayCycle  = 0;        // 0 = 1×  1 = 0.5×
   let replayIter   = 0;        // how many full (1× + 0.5×) cycles done
+  let cdGoTimeout  = null;     // pending timer to hide the GO! flash
   let settingsOpen = false;
 
   // ── Camera ─────────────────────────────────────────────────────────────────
@@ -45,7 +46,7 @@
       });
       previewVid.srcObject = stream;
       // Mirror front camera so it feels like a natural mirror for positioning
-      previewVid.style.transform = cfg.camera === 'user' ? 'scaleX(-1)' : '';
+      previewVid.classList.toggle('mirrored', cfg.camera === 'user');
       hideError();
     } catch {
       showError('Camera access denied.\nPlease allow camera access and reload the page.');
@@ -98,7 +99,7 @@
       cdValue--;
       if (cdValue <= 0) {
         clearInterval(cdTimer); cdTimer = null;
-        showCd(null);
+        showCd('GO!');
         startRecording();
       } else {
         showCd(cdValue);
@@ -113,15 +114,21 @@
   }
 
   function showCd(n) {
+    if (cdGoTimeout !== null) { clearTimeout(cdGoTimeout); cdGoTimeout = null; }
     if (n === null) {
-      countdownEl.style.display = 'none';
+      countdownEl.classList.add('hidden');
+      countdownEl.classList.remove('cd-go', 'animating');
     } else {
       countdownEl.textContent = n;
-      // Restart animation so each number pops in
-      countdownEl.style.animation = 'none';
+      countdownEl.classList.toggle('cd-go', n === 'GO!');
+      // Restart animation so each number pops in fresh
+      countdownEl.classList.remove('animating');
       void countdownEl.offsetWidth;
-      countdownEl.style.animation = '';
-      countdownEl.style.display = '';
+      countdownEl.classList.remove('hidden');
+      countdownEl.classList.add('animating');
+      if (n === 'GO!') {
+        cdGoTimeout = setTimeout(() => { cdGoTimeout = null; showCd(null); }, 600);
+      }
     }
   }
 
@@ -176,8 +183,8 @@
     setState('replay');
     replayIter  = 0;
     replayCycle = 0;
-    previewVid.style.display = 'none';
-    replayVid.style.display  = '';
+    previewVid.classList.add('hidden');
+    replayVid.classList.remove('hidden');
     replayVid.src = replayUrl;
     playSegment();
   }
@@ -189,9 +196,9 @@
 
     if (cfg.replays > 1) {
       cycleCounter.textContent = `Replay ${replayIter + 1} of ${cfg.replays}`;
-      cycleCounter.style.display = '';
+      cycleCounter.classList.remove('hidden');
     } else {
-      cycleCounter.style.display = 'none';
+      cycleCounter.classList.add('hidden');
     }
 
     replayVid.play().catch(() => {});
@@ -220,22 +227,24 @@
     replayVid.removeAttribute('src');
     replayVid.load(); // reset element state
     if (replayUrl) { URL.revokeObjectURL(replayUrl); replayUrl = null; }
-    replayVid.style.display  = 'none';
-    previewVid.style.display = '';
+    replayVid.classList.add('hidden');
+    previewVid.classList.remove('hidden');
     setState('idle');
   }
 
   // ── UI state ───────────────────────────────────────────────────────────────
   function setState(s) {
     appState = s;
+    if (cdGoTimeout !== null) { clearTimeout(cdGoTimeout); cdGoTimeout = null; }
 
     // Reset all HUD elements to hidden/default
-    statusBadge.style.display  = '';
-    recIndicator.style.display = 'none';
-    countdownEl.style.display  = 'none';
-    replayInfo.style.display   = 'none';
-    instruction.style.display  = '';
-    settingsBtn.style.display  = '';
+    statusBadge.classList.remove('hidden');
+    recIndicator.classList.add('hidden');
+    countdownEl.classList.add('hidden');
+    countdownEl.classList.remove('cd-go', 'animating');
+    replayInfo.classList.add('hidden');
+    instruction.classList.remove('hidden');
+    settingsBtn.classList.remove('hidden');
 
     switch (s) {
       case 'idle':
@@ -245,41 +254,41 @@
       case 'countdown':
         statusBadge.textContent = 'Get Ready';
         instruction.textContent = 'Press again to cancel';
-        settingsBtn.style.display = 'none';
+        settingsBtn.classList.add('hidden');
         break;
       case 'recording':
-        statusBadge.style.display  = 'none';
-        recIndicator.style.display = 'flex';
-        instruction.textContent    = 'Press to stop recording';
-        settingsBtn.style.display  = 'none';
+        statusBadge.classList.add('hidden');
+        recIndicator.classList.remove('hidden');
+        instruction.textContent = 'Press to stop recording';
+        settingsBtn.classList.add('hidden');
         break;
       case 'replay':
-        statusBadge.style.display = 'none';
-        replayInfo.style.display  = 'flex';
-        instruction.style.display = 'none';
-        settingsBtn.style.display = 'none';
+        statusBadge.classList.add('hidden');
+        replayInfo.classList.remove('hidden');
+        instruction.classList.add('hidden');
+        settingsBtn.classList.add('hidden');
         break;
     }
   }
 
   // ── Error ──────────────────────────────────────────────────────────────────
   function showError(msg) {
-    errorBanner.textContent  = msg;
-    errorBanner.style.display = '';
-    instruction.style.display = 'none';
+    errorBanner.textContent = msg;
+    errorBanner.classList.remove('hidden');
+    instruction.classList.add('hidden');
   }
-  function hideError() { errorBanner.style.display = 'none'; }
+  function hideError() { errorBanner.classList.add('hidden'); }
 
   // ── Settings panel ─────────────────────────────────────────────────────────
   function openSettings() {
     settingsOpen = true;
     settingsPanel.classList.add('open');
-    backdrop.style.display = 'block';
+    backdrop.classList.remove('hidden');
   }
   function closeSettings() {
     settingsOpen = false;
     settingsPanel.classList.remove('open');
-    backdrop.style.display = 'none';
+    backdrop.classList.add('hidden');
   }
 
   settingsBtn.addEventListener('click', e => { e.stopPropagation(); openSettings(); });
