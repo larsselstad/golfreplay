@@ -18,9 +18,11 @@
   const backdrop        = document.getElementById('settings-backdrop');
   const doneBtn         = document.getElementById('done-btn');
   const versionBadge    = document.getElementById('version-badge');
+  const faceTriggerWrap = document.getElementById('face-trigger-wrap');
+  const faceTriggerBtn  = document.getElementById('face-trigger-btn');
 
   // ── Version ────────────────────────────────────────────────────────────────
-  const APP_VERSION = 'v3';
+  const APP_VERSION = 'v4';
 
   // ── Config (mirrors the settings UI defaults) ──────────────────────────────
   const cfg = { camera: 'user', countdown: 5, replays: 1 };
@@ -77,9 +79,9 @@
     if (TRIGGER_KEYS.has(e.key)) { e.preventDefault(); onTrigger(); }
   });
 
-  // Tap anywhere that is NOT a settings or bt-detect element
+  // Tap anywhere that is NOT a settings or face-trigger element
   document.addEventListener('pointerdown', e => {
-    if (e.target.closest('#settings-panel, #settings-btn, #settings-backdrop, #bt-detect-overlay')) return;
+    if (e.target.closest('#settings-panel, #settings-btn, #settings-backdrop, #face-trigger-wrap')) return;
     onTrigger();
   });
 
@@ -247,28 +249,38 @@
     replayInfo.classList.add('hidden');
     instruction.classList.remove('hidden');
     settingsBtn.classList.remove('hidden');
+    faceTriggerWrap.classList.add('hidden');
 
     switch (s) {
       case 'idle':
         statusBadge.textContent = 'Ready';
-        instruction.textContent = 'Tap anywhere or press button to start';
+        instruction.textContent = (faceTriggerActive && cfg.camera === 'user')
+          ? 'Look at camera to start'
+          : 'Tap anywhere or press button to start';
+        if (cfg.camera === 'user') {
+          faceTriggerWrap.classList.remove('hidden');
+          if (faceTriggerActive) scheduleNextDetection();
+        }
         break;
       case 'countdown':
         statusBadge.textContent = 'Get Ready';
         instruction.textContent = 'Press again to cancel';
         settingsBtn.classList.add('hidden');
+        stopFaceDetection();
         break;
       case 'recording':
         statusBadge.classList.add('hidden');
         recIndicator.classList.remove('hidden');
         instruction.textContent = 'Press to stop recording';
         settingsBtn.classList.add('hidden');
+        stopFaceDetection();
         break;
       case 'replay':
         statusBadge.classList.add('hidden');
         replayInfo.classList.remove('hidden');
         instruction.classList.add('hidden');
         settingsBtn.classList.add('hidden');
+        stopFaceDetection();
         break;
     }
   }
@@ -286,11 +298,13 @@
     settingsOpen = true;
     settingsPanel.classList.add('open');
     backdrop.classList.remove('hidden');
+    stopFaceDetection();
   }
   function closeSettings() {
     settingsOpen = false;
     settingsPanel.classList.remove('open');
     backdrop.classList.add('hidden');
+    if (faceTriggerActive && appState === 'idle' && cfg.camera === 'user') scheduleNextDetection();
   }
 
   settingsBtn.addEventListener('click', e => { e.stopPropagation(); openSettings(); });
@@ -308,9 +322,196 @@
       const raw = btn.dataset.value;
       cfg[key] = key === 'camera' ? raw : parseInt(raw, 10);
       // Restart camera immediately if the facing mode changed (only safe while idle)
-      if (key === 'camera' && appState === 'idle') await startCamera();
+      if (key === 'camera' && appState === 'idle') {
+        await startCamera();
+        if (cfg.camera === 'environment') {
+          if (faceTriggerActive) {
+            faceTriggerActive = false;
+            faceTriggerWrap.classList.remove('ft-watching');
+          }
+          stopFaceDetection();
+          faceTriggerWrap.classList.add('hidden');
+          instruction.textContent = 'Tap anywhere or press button to start';
+        } else {
+          faceTriggerWrap.classList.remove('hidden');
+          instruction.textContent = faceTriggerActive ? 'Look at camera to start' : 'Tap anywhere or press button to start';
+        }
+      }
     });
   });
+
+  // ── Face trigger ───────────────────────────────────────────────────────────
+  let faceTriggerActive  = false;
+  let faceModelsLoaded   = false;
+  let faceModelsLoading  = false;
+  let faceModelsError    = false;
+  let faceDetectTimer    = null;
+  let faceDwellStart     = null;
+  let faceLastDetectTime = null;
+
+  const FACE_DWELL_MS        = 1500;
+  const FACE_DETECT_INTERVAL = 500;
+
+  const faceCanvas = document.createElement('canvas');
+  const faceCtx    = faceCanvas.getContext('2d');
+
+  function loadFaceApiScript() {
+    return new Promise((resolve, reject) => {
+      if (window.faceapi) { resolve(); return; }
+      const s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js';
+      s.onload = resolve;
+      s.onerror = reject;
+      document.head.appendChild(s);
+    });
+  }
+
+  async function loadFaceModels() {
+    if (faceModelsLoaded || faceModelsLoading) return;
+    faceModelsLoading = true;
+    faceTriggerBtn.classList.add('ft-loading');
+    try {
+      await loadFaceApiScript();
+      const MODEL_URL = 'https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights/';
+      await Promise.all([
+        faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
+        faceapi.nets.faceLandmark68TinyNet.loadFromUri(MODEL_URL),
+      ]);
+      faceModelsLoaded = true;
+      faceModelsError  = false;
+    } catch {
+      faceModelsError = true;
+      faceTriggerBtn.textContent = '⚠';
+    }
+    faceModelsLoading = false;
+    faceTriggerBtn.classList.remove('ft-loading');
+    if (faceModelsLoaded && faceTriggerActive && appState === 'idle' && !settingsOpen) {
+      scheduleNextDetection();
+    }
+  }
+
+  function scheduleNextDetection() {
+    clearTimeout(faceDetectTimer);
+    faceDetectTimer = null;
+    if (!faceModelsLoaded || !faceTriggerActive || appState !== 'idle' || settingsOpen) return;
+    faceDetectTimer = setTimeout(runFaceDetection, FACE_DETECT_INTERVAL);
+  }
+
+  function stopFaceDetection() {
+    clearTimeout(faceDetectTimer);
+    faceDetectTimer    = null;
+    faceDwellStart     = null;
+    faceLastDetectTime = null;
+    if (faceTriggerWrap) updateDwellRing(0);
+  }
+
+  async function runFaceDetection() {
+    faceDetectTimer = null;
+    if (!faceModelsLoaded || !faceTriggerActive || appState !== 'idle' || settingsOpen) return;
+    if (!faceCtx || !previewVid.videoWidth) { scheduleNextDetection(); return; }
+
+    // Downscale to max 320px on the longest dimension for performance
+    const scale = Math.min(1, 320 / Math.max(previewVid.videoWidth, previewVid.videoHeight));
+    const w = Math.round(previewVid.videoWidth  * scale);
+    const h = Math.round(previewVid.videoHeight * scale);
+    if (faceCanvas.width !== w)  faceCanvas.width  = w;
+    if (faceCanvas.height !== h) faceCanvas.height = h;
+    faceCtx.drawImage(previewVid, 0, 0, w, h);
+
+    let detections;
+    try {
+      detections = await faceapi
+        .detectAllFaces(faceCanvas, new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.5 }))
+        .withFaceLandmarks(true);
+    } catch {
+      scheduleNextDetection();
+      return;
+    }
+
+    // Guard: state may have changed during async inference
+    if (!faceTriggerActive || appState !== 'idle' || settingsOpen) return;
+
+    // Use only the largest detected face to avoid triggering on bystanders
+    const largest = detections.reduce(
+      (best, d) => (!best || d.detection.box.area > best.detection.box.area) ? d : best, null
+    );
+
+    const looking = largest ? isFrontalFace(largest, w) : false;
+    const now = Date.now();
+
+    // Reset dwell if there was a long gap (page was throttled or backgrounded)
+    if (faceLastDetectTime && now - faceLastDetectTime > FACE_DETECT_INTERVAL * 3) {
+      faceDwellStart = null;
+    }
+    faceLastDetectTime = now;
+
+    if (looking) {
+      if (!faceDwellStart) faceDwellStart = now;
+      const elapsed = now - faceDwellStart;
+      updateDwellRing(Math.min(elapsed / FACE_DWELL_MS, 1));
+      if (elapsed >= FACE_DWELL_MS) {
+        stopFaceDetection();
+        startCountdown();
+        return;
+      }
+    } else {
+      faceDwellStart = null;
+      updateDwellRing(0);
+    }
+
+    scheduleNextDetection();
+  }
+
+  function isFrontalFace(detection, canvasWidth) {
+    const box = detection.detection.box;
+    if (box.width < canvasWidth * 0.08) return false;
+
+    const pts = detection.landmarks.positions;
+    const leftEyeX  = (pts[36].x + pts[37].x + pts[38].x + pts[39].x + pts[40].x + pts[41].x) / 6;
+    const rightEyeX = (pts[42].x + pts[43].x + pts[44].x + pts[45].x + pts[46].x + pts[47].x) / 6;
+    const noseTipX  = pts[30].x;
+    const eyeMidX   = (leftEyeX + rightEyeX) / 2;
+    const eyeSpan   = Math.abs(rightEyeX - leftEyeX);
+    if (eyeSpan < 1) return false;
+    return Math.abs(noseTipX - eyeMidX) / eyeSpan < 0.20;
+  }
+
+  function updateDwellRing(progress) {
+    faceTriggerWrap.style.setProperty('--dwell', `${Math.round(progress * 100)}%`);
+  }
+
+  async function toggleFaceTrigger() {
+    if (faceModelsLoading) return;
+    if (faceTriggerActive) {
+      faceTriggerActive = false;
+      stopFaceDetection();
+      faceTriggerWrap.classList.remove('ft-watching');
+      instruction.textContent = 'Tap anywhere or press button to start';
+    } else {
+      if (faceModelsError) {
+        faceModelsError = false;
+        faceTriggerBtn.textContent = '👁';
+      }
+      faceTriggerActive = true;
+      faceTriggerWrap.classList.add('ft-watching');
+      instruction.textContent = 'Look at camera to start';
+      if (!faceModelsLoaded) {
+        await loadFaceModels();
+      } else {
+        scheduleNextDetection();
+      }
+    }
+  }
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      faceDwellStart     = null;
+      faceLastDetectTime = null;
+      updateDwellRing(0);
+    }
+  });
+
+  faceTriggerBtn.addEventListener('click', e => { e.stopPropagation(); toggleFaceTrigger(); });
 
   // ── Bootstrap ──────────────────────────────────────────────────────────────
   versionBadge.textContent = APP_VERSION;
