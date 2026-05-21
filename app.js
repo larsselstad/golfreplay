@@ -45,8 +45,6 @@
         audio: false,
       });
       previewVid.srcObject = stream;
-      // Mirror front camera so it feels like a natural mirror for positioning
-      previewVid.classList.toggle('mirrored', cfg.camera === 'user');
       hideError();
     } catch {
       showError('Camera access denied.\nPlease allow camera access and reload the page.');
