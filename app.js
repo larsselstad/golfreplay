@@ -2,39 +2,56 @@
   'use strict';
 
   // ── DOM refs ───────────────────────────────────────────────────────────────
-  const previewVid   = document.getElementById('preview');
-  const replayVid    = document.getElementById('replay');
-  const statusBadge  = document.getElementById('status-badge');
-  const recIndicator = document.getElementById('rec-indicator');
-  const recTimeEl    = document.getElementById('rec-time');
-  const countdownEl  = document.getElementById('countdown');
-  const replayInfo   = document.getElementById('replay-info');
-  const speedBadge   = document.getElementById('speed-badge');
-  const cycleCounter = document.getElementById('cycle-counter');
-  const instruction  = document.getElementById('instruction');
-  const errorBanner  = document.getElementById('error-banner');
-  const settingsBtn  = document.getElementById('settings-btn');
-  const settingsPanel= document.getElementById('settings-panel');
-  const backdrop     = document.getElementById('settings-backdrop');
-  const doneBtn      = document.getElementById('done-btn');
+  const previewVid      = document.getElementById('preview');
+  const replayVid       = document.getElementById('replay');
+  const statusBadge     = document.getElementById('status-badge');
+  const recIndicator    = document.getElementById('rec-indicator');
+  const recTimeEl       = document.getElementById('rec-time');
+  const countdownEl     = document.getElementById('countdown');
+  const replayInfo      = document.getElementById('replay-info');
+  const speedBadge      = document.getElementById('speed-badge');
+  const cycleCounter    = document.getElementById('cycle-counter');
+  const instruction     = document.getElementById('instruction');
+  const errorBanner     = document.getElementById('error-banner');
+  const settingsBtn     = document.getElementById('settings-btn');
+  const settingsPanel   = document.getElementById('settings-panel');
+  const backdrop        = document.getElementById('settings-backdrop');
+  const doneBtn         = document.getElementById('done-btn');
+  const versionBadge    = document.getElementById('version-badge');
+  const btSavedRow      = document.getElementById('bt-saved-row');
+  const btSavedKeyEl    = document.getElementById('bt-saved-key');
+  const btClearBtn      = document.getElementById('bt-clear-btn');
+  const btDetectBtn     = document.getElementById('bt-detect-btn');
+  const btDetectOverlay = document.getElementById('bt-detect-overlay');
+  const btDetectMsg     = document.getElementById('bt-detect-msg');
+  const btDetectFound   = document.getElementById('bt-detect-found');
+  const btDetectKeyName = document.getElementById('bt-detect-key-name');
+  const btDetectSecsEl  = document.getElementById('bt-detect-secs');
+  const btCancelBtn     = document.getElementById('bt-cancel-btn');
+
+  // ── Version ────────────────────────────────────────────────────────────────
+  const APP_VERSION = 'v2';
 
   // ── Config (mirrors the settings UI defaults) ──────────────────────────────
   const cfg = { camera: 'user', countdown: 5, replays: 1 };
 
   // ── App state ──────────────────────────────────────────────────────────────
-  let appState     = 'idle';   // idle | countdown | recording | replay
-  let stream       = null;
-  let recorder     = null;
-  let chunks       = [];
-  let replayUrl    = null;
-  let cdTimer      = null;
-  let cdValue      = 0;
-  let recTimer     = null;
-  let recSecs      = 0;
-  let replayCycle  = 0;        // 0 = 1×  1 = 0.5×
-  let replayIter   = 0;        // how many full (1× + 0.5×) cycles done
-  let cdGoTimeout  = null;     // pending timer to hide the GO! flash
-  let settingsOpen = false;
+  let appState      = 'idle';   // idle | countdown | recording | replay
+  let stream        = null;
+  let recorder      = null;
+  let chunks        = [];
+  let replayUrl     = null;
+  let cdTimer       = null;
+  let cdValue       = 0;
+  let recTimer      = null;
+  let recSecs       = 0;
+  let replayCycle   = 0;
+  let replayIter    = 0;
+  let cdGoTimeout   = null;
+  let settingsOpen  = false;
+  let btDetectActive = false;
+  let btCountdownTimer = null;
+  let btCountdownLeft  = 10;
 
   // ── Camera ─────────────────────────────────────────────────────────────────
   async function startCamera() {
@@ -66,21 +83,22 @@
   }
 
   // ── Input handling ─────────────────────────────────────────────────────────
-  const TRIGGER_KEYS = new Set([' ', 'Enter', 'ArrowRight', 'ArrowLeft', 'ArrowUp', 'ArrowDown']);
+  const TRIGGER_KEYS = new Set([' ', 'Enter', 'ArrowRight', 'ArrowLeft', 'ArrowUp', 'ArrowDown', 'AudioVolumeUp', 'AudioVolumeDown']);
 
   document.addEventListener('keydown', e => {
     if (e.repeat) return;
     if (TRIGGER_KEYS.has(e.key)) { e.preventDefault(); onTrigger(); }
   });
 
-  // Tap anywhere that is NOT a settings element
+  // Tap anywhere that is NOT a settings or bt-detect element
   document.addEventListener('pointerdown', e => {
-    if (e.target.closest('#settings-panel, #settings-btn, #settings-backdrop')) return;
+    if (e.target.closest('#settings-panel, #settings-btn, #settings-backdrop, #bt-detect-overlay')) return;
     onTrigger();
   });
 
   function onTrigger() {
-    if (settingsOpen) { closeSettings(); return; }
+    if (btDetectActive)        { closeBtDetect(); return; }
+    if (settingsOpen)          { closeSettings(); return; }
     if      (appState === 'idle')       startCountdown();
     else if (appState === 'countdown')  cancelCountdown();
     else if (appState === 'recording')  stopRecording();
@@ -308,7 +326,81 @@
     });
   });
 
+  // ── Bluetooth button detection ─────────────────────────────────────────────
+  function formatKey(key) {
+    const names = { 'AudioVolumeUp': 'Volume Up', 'AudioVolumeDown': 'Volume Down', ' ': 'Space' };
+    return names[key] ?? key;
+  }
+
+  function updateBtSavedRow() {
+    const saved = localStorage.getItem('btTriggerKey');
+    if (saved) {
+      btSavedKeyEl.textContent = formatKey(saved);
+      btSavedRow.classList.remove('hidden');
+    } else {
+      btSavedRow.classList.add('hidden');
+    }
+  }
+
+  function openBtDetect() {
+    btDetectActive = true;
+    btDetectOverlay.classList.remove('hidden');
+    btDetectMsg.textContent = 'Press your Bluetooth button now';
+    btDetectFound.classList.add('hidden');
+    btCountdownLeft = 10;
+    btDetectSecsEl.textContent = '10';
+    document.addEventListener('keydown', onBtKey, true);
+    btCountdownTimer = setInterval(() => {
+      btCountdownLeft--;
+      btDetectSecsEl.textContent = String(btCountdownLeft);
+      if (btCountdownLeft <= 0) {
+        clearInterval(btCountdownTimer); btCountdownTimer = null;
+        document.removeEventListener('keydown', onBtKey, true);
+        btDetectMsg.textContent = 'No key detected. iOS may block volume keys from web apps. Try configuring your button to send a different key (e.g. Space or Enter).';
+        btDetectSecsEl.textContent = '';
+      }
+    }, 1000);
+  }
+
+  function onBtKey(e) {
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    clearInterval(btCountdownTimer); btCountdownTimer = null;
+    document.removeEventListener('keydown', onBtKey, true);
+    const key = e.key;
+    localStorage.setItem('btTriggerKey', key);
+    TRIGGER_KEYS.add(key);
+    updateBtSavedRow();
+    btDetectMsg.textContent = 'Button detected!';
+    btDetectKeyName.textContent = formatKey(key);
+    btDetectFound.classList.remove('hidden');
+    btDetectSecsEl.textContent = '';
+    setTimeout(closeBtDetect, 1800);
+  }
+
+  function closeBtDetect() {
+    btDetectActive = false;
+    btDetectOverlay.classList.add('hidden');
+    clearInterval(btCountdownTimer); btCountdownTimer = null;
+    document.removeEventListener('keydown', onBtKey, true);
+  }
+
+  btDetectBtn.addEventListener('click', e => { e.stopPropagation(); closeSettings(); openBtDetect(); });
+  btClearBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    const saved = localStorage.getItem('btTriggerKey');
+    if (saved) TRIGGER_KEYS.delete(saved);
+    localStorage.removeItem('btTriggerKey');
+    updateBtSavedRow();
+  });
+  btCancelBtn.addEventListener('click', e => { e.stopPropagation(); closeBtDetect(); });
+
   // ── Bootstrap ──────────────────────────────────────────────────────────────
+  versionBadge.textContent = APP_VERSION;
+
+  const savedBtKey = localStorage.getItem('btTriggerKey');
+  if (savedBtKey) { TRIGGER_KEYS.add(savedBtKey); updateBtSavedRow(); }
+
   setState('idle');
   startCamera();
 })();

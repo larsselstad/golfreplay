@@ -21,8 +21,16 @@ A web app for recording your golf swing and instantly replaying it — first at 
 
 | Action | Input |
 |---|---|
-| Start countdown / Stop recording / Skip replay | Bluetooth remote (Space, Enter, arrow keys) or tap the screen |
+| Start countdown / Stop recording / Skip replay | Bluetooth remote (Space, Enter, arrow keys, Volume Up/Down) or tap the screen |
 | Open settings | Tap the ⚙️ gear icon |
+
+---
+
+## Bluetooth button setup
+
+Open **Settings → Bluetooth Button → Detect button press**, then press your remote. The app will detect the key it sends and remember it for future sessions.
+
+> **Note:** Buttons that send Volume Up/Down (common for iPhone camera remotes like Dispho) may or may not reach the browser, depending on iOS version. If detection times out, try configuring your button to send a regular key (Space, Enter, etc.) via its companion app.
 
 ---
 
@@ -33,6 +41,7 @@ A web app for recording your golf swing and instantly replaying it — first at 
 | Camera | Front / Back |
 | Countdown | 3 / 5 / 10 seconds |
 | Replay cycles | 1 / 2 / 3 |
+| Bluetooth Button | Detect / Clear saved key |
 
 ---
 
@@ -81,6 +90,7 @@ npx serve .
 
 | File | Description |
 |---|---|
-| `index.html` | HTML structure |
+| `index.html` | HTML structure and asset references (versioned with `?v=N`) |
 | `style.css` | All styles |
 | `app.js` | All app logic |
+| `AGENTS.md` | Project conventions for AI agents and contributors |

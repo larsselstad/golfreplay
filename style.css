@@ -153,6 +153,17 @@ video {
   line-height: 1.5; white-space: pre-line;
 }
 
+/* ── Version badge ────────────────────────────────────────────────────── */
+#version-badge {
+  position: absolute;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 12px);
+  left: 16px;
+  color: rgba(255,255,255,0.3);
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.08em;
+  pointer-events: none;
+}
+
 /* ── Settings panel ───────────────────────────────────────────────────── */
 #settings-backdrop {
   position: fixed; inset: 0;
@@ -210,5 +221,63 @@ video {
   border: none; border-radius: 14px;
   color: #fff; font-size: 16px; font-weight: 600;
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ── Bluetooth button row in settings ────────────────────────────────── */
+.bt-saved-row {
+  align-items: center; gap: 8px; margin-bottom: 8px;
+}
+.bt-saved-row:not(.hidden) { display: flex; }
+#bt-saved-key {
+  flex: 1;
+  background: rgba(255,255,255,0.08);
+  border-radius: 10px; padding: 8px 12px;
+  font-size: 13px; color: rgba(255,255,255,0.7);
+}
+.bt-saved-row .pill-btn { flex: 0 0 auto; padding: 8px 16px; }
+.bt-detect-btn {
+  width: 100%; padding: 11px 6px;
+  background: rgba(255,255,255,0.08);
+  border: 2px solid transparent; border-radius: 12px;
+  color: rgba(255,255,255,0.7);
+  font-size: 14px; font-weight: 600;
+  cursor: pointer; text-align: center;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+/* ── Bluetooth key detection overlay ─────────────────────────────────── */
+#bt-detect-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.88);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  z-index: 110;
+  display: flex; align-items: center; justify-content: center;
+  pointer-events: auto;
+}
+#bt-detect-overlay.hidden { display: none; }
+#bt-detect-box {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 20px; padding: 32px 24px;
+  max-width: min(90vw, 340px); text-align: center;
+}
+#bt-detect-msg {
+  color: #fff; font-size: 17px; font-weight: 600; line-height: 1.5;
+}
+#bt-detect-found { border-radius: 16px; padding: 14px 28px; }
+#bt-detect-found:not(.hidden) {
+  display: block;
+  background: rgba(48,209,88,0.2); border: 2px solid #30d158;
+}
+#bt-detect-key-name { color: #30d158; font-size: 20px; font-weight: 700; }
+#bt-detect-secs {
+  color: rgba(255,255,255,0.5); font-size: 40px; font-weight: 700;
+  line-height: 1; min-height: 48px;
+}
+#bt-cancel-btn {
+  background: rgba(255,255,255,0.12); border: none; border-radius: 14px;
+  color: rgba(255,255,255,0.7); font-size: 16px; font-weight: 600;
+  padding: 12px 32px; cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }

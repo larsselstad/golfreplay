@@ -6,7 +6,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-fullscreen">
   <title>Golf Replay</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=2">
 </head>
 <body>
 
@@ -33,6 +33,7 @@
   </div>
 
   <div id="instruction">Tap anywhere or press button to start</div>
+  <div id="version-badge"></div>
   <div id="error-banner" class="hidden"></div>
 
   <button id="settings-btn" aria-label="Settings">⚙</button>
@@ -70,9 +71,29 @@
     </div>
   </div>
 
+  <div class="setting-row">
+    <div class="setting-label">Bluetooth Button</div>
+    <div id="bt-saved-row" class="bt-saved-row hidden">
+      <span id="bt-saved-key"></span>
+      <button id="bt-clear-btn" class="pill-btn">Clear</button>
+    </div>
+    <button id="bt-detect-btn" class="bt-detect-btn">Detect button press</button>
+  </div>
+
   <button id="done-btn">Done</button>
 </div>
 
-<script src="app.js"></script>
+<div id="bt-detect-overlay" class="hidden">
+  <div id="bt-detect-box">
+    <p id="bt-detect-msg">Press your Bluetooth button now</p>
+    <div id="bt-detect-found" class="hidden">
+      <span id="bt-detect-key-name"></span>
+    </div>
+    <p id="bt-detect-secs">10</p>
+    <button id="bt-cancel-btn">Cancel</button>
+  </div>
+</div>
+
+<script src="app.js?v=2"></script>
 </body>
 </html>
