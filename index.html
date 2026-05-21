@@ -6,7 +6,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-fullscreen">
   <title>Golf Replay</title>
-  <link rel="stylesheet" href="style.css?v=4">
+  <link rel="stylesheet" href="style.css?v=5">
 </head>
 <body>
 
@@ -76,9 +76,19 @@
     </div>
   </div>
 
+  <div class="setting-row">
+    <div class="setting-label">Max Recording</div>
+    <div class="pill-group" id="grp-maxrec">
+      <button class="pill-btn"        data-value="10">10 s</button>
+      <button class="pill-btn active" data-value="15">15 s</button>
+      <button class="pill-btn"        data-value="20">20 s</button>
+      <button class="pill-btn"        data-value="30">30 s</button>
+    </div>
+  </div>
+
   <button id="done-btn">Done</button>
 </div>
 
-<script src="app.js?v=4"></script>
+<script src="app.js?v=5"></script>
 </body>
 </html>

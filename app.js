@@ -22,10 +22,10 @@
   const faceTriggerBtn  = document.getElementById('face-trigger-btn');
 
   // ── Version ────────────────────────────────────────────────────────────────
-  const APP_VERSION = 'v4';
+  const APP_VERSION = 'v5';
 
   // ── Config (mirrors the settings UI defaults) ──────────────────────────────
-  const cfg = { camera: 'user', countdown: 5, replays: 1 };
+  const cfg = { camera: 'user', countdown: 5, replays: 1, maxrec: 15 };
 
   // ── App state ──────────────────────────────────────────────────────────────
   let appState      = 'idle';   // idle | countdown | recording | replay
@@ -168,7 +168,11 @@
     recorder.start(100); // collect data in 100 ms chunks for reliability on iOS
     recSecs = 0;
     updateRecTime();
-    recTimer = setInterval(() => { recSecs++; updateRecTime(); }, 1000);
+    recTimer = setInterval(() => {
+      recSecs++;
+      updateRecTime();
+      if (recSecs >= cfg.maxrec) stopRecording();
+    }, 1000);
   }
 
   function stopRecording() {
@@ -271,9 +275,15 @@
       case 'recording':
         statusBadge.classList.add('hidden');
         recIndicator.classList.remove('hidden');
-        instruction.textContent = 'Press to stop recording';
+        instruction.textContent = (faceTriggerActive && cfg.camera === 'user')
+          ? 'Look at camera to stop'
+          : 'Press to stop recording';
         settingsBtn.classList.add('hidden');
-        stopFaceDetection();
+        if (faceTriggerActive && cfg.camera === 'user') {
+          scheduleNextDetection();
+        } else {
+          stopFaceDetection();
+        }
         break;
       case 'replay':
         statusBadge.classList.add('hidden');
@@ -311,8 +321,8 @@
   backdrop.addEventListener('click', closeSettings);
   doneBtn.addEventListener('click', closeSettings);
 
-  // Pill button groups — camera / countdown / replays
-  ['camera', 'countdown', 'replays'].forEach(key => {
+  // Pill button groups — camera / countdown / replays / maxrec
+  ['camera', 'countdown', 'replays', 'maxrec'].forEach(key => {
     const grp = document.getElementById(`grp-${key}`);
     grp.addEventListener('click', async e => {
       const btn = e.target.closest('.pill-btn');
@@ -350,6 +360,7 @@
   let faceLastDetectTime = null;
 
   const FACE_DWELL_MS        = 1500;
+  const FACE_STOP_DWELL_MS   = 1000;
   const FACE_DETECT_INTERVAL = 500;
 
   const faceCanvas = document.createElement('canvas');
@@ -393,7 +404,9 @@
   function scheduleNextDetection() {
     clearTimeout(faceDetectTimer);
     faceDetectTimer = null;
-    if (!faceModelsLoaded || !faceTriggerActive || appState !== 'idle' || settingsOpen) return;
+    if (!faceModelsLoaded || !faceTriggerActive || cfg.camera !== 'user') return;
+    if (appState !== 'idle' && appState !== 'recording') return;
+    if (settingsOpen) return;
     faceDetectTimer = setTimeout(runFaceDetection, FACE_DETECT_INTERVAL);
   }
 
@@ -407,7 +420,8 @@
 
   async function runFaceDetection() {
     faceDetectTimer = null;
-    if (!faceModelsLoaded || !faceTriggerActive || appState !== 'idle' || settingsOpen) return;
+    const inActiveState = appState === 'idle' || appState === 'recording';
+    if (!faceModelsLoaded || !faceTriggerActive || cfg.camera !== 'user' || !inActiveState || settingsOpen) return;
     if (!faceCtx || !previewVid.videoWidth) { scheduleNextDetection(); return; }
 
     // Downscale to max 320px on the longest dimension for performance
@@ -429,7 +443,8 @@
     }
 
     // Guard: state may have changed during async inference
-    if (!faceTriggerActive || appState !== 'idle' || settingsOpen) return;
+    const inActiveStatePost = appState === 'idle' || appState === 'recording';
+    if (!faceTriggerActive || cfg.camera !== 'user' || !inActiveStatePost || settingsOpen) return;
 
     // Use only the largest detected face to avoid triggering on bystanders
     const largest = detections.reduce(
@@ -445,18 +460,21 @@
     }
     faceLastDetectTime = now;
 
+    const dwellMs = appState === 'recording' ? FACE_STOP_DWELL_MS : FACE_DWELL_MS;
+
     if (looking) {
       if (!faceDwellStart) faceDwellStart = now;
       const elapsed = now - faceDwellStart;
-      updateDwellRing(Math.min(elapsed / FACE_DWELL_MS, 1));
-      if (elapsed >= FACE_DWELL_MS) {
+      if (appState === 'idle') updateDwellRing(Math.min(elapsed / dwellMs, 1));
+      if (elapsed >= dwellMs) {
         stopFaceDetection();
-        startCountdown();
+        if (appState === 'idle') startCountdown();
+        else stopRecording();
         return;
       }
     } else {
       faceDwellStart = null;
-      updateDwellRing(0);
+      if (appState === 'idle') updateDwellRing(0);
     }
 
     scheduleNextDetection();
