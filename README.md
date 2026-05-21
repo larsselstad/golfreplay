@@ -6,6 +6,12 @@ A web app for recording your golf swing and instantly replaying it — first at 
 
 ---
 
+## What's new in v7
+
+- **Camera on/off button** — the 📷 button (bottom-right corner) now stops the camera feed entirely. Tap it again to turn the camera back on. Useful for saving battery between shots. Switching facing mode in Settings while the camera is off takes effect when you turn it back on.
+
+---
+
 ## What's new in v6
 
 - **Camera toggle button** — a 📷 button sits next to the 👁 face trigger in the bottom-right corner. Tap it to instantly switch between front and rear camera without opening Settings.
@@ -43,7 +49,7 @@ A web app for recording your golf swing and instantly replaying it — first at 
 | Start countdown / Stop recording / Skip replay | Tap the screen or press a keyboard key (Space, Enter, arrow keys) |
 | Hands-free start | Tap 👁 to arm face trigger, then hold eye contact for 1.5 s |
 | Hands-free stop | After swing, look back at camera and hold eye contact for 1 s |
-| Switch camera | Tap the 📷 button (bottom-right corner) |
+| Switch camera on/off | Tap the 📷 button (bottom-right corner) |
 | Open settings | Tap the ⚙️ gear icon |
 
 ---

@@ -188,6 +188,10 @@ video {
   pointer-events: auto;
 }
 #cam-toggle-btn.hidden { display: none; }
+#cam-toggle-btn.cam-off {
+  background: rgba(255,59,48,0.45);
+  color: rgba(255,255,255,0.9);
+}
 
 /* ── Face trigger button ──────────────────────────────────────────────── */
 #face-trigger-wrap {

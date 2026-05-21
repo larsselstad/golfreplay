@@ -23,13 +23,14 @@
   const camToggleBtn    = document.getElementById('cam-toggle-btn');
 
   // ── Version ────────────────────────────────────────────────────────────────
-  const APP_VERSION = 'v7';
+  const APP_VERSION = 'v8';
 
   // ── Config (mirrors the settings UI defaults) ──────────────────────────────
   const cfg = { camera: 'user', countdown: 5, replays: 1 };
 
   // ── App state ──────────────────────────────────────────────────────────────
   let appState      = 'idle';   // idle | countdown | recording | replay
+  let cameraEnabled = true;
   let stream        = null;
   let recorder      = null;
   let chunks        = [];
@@ -327,6 +328,7 @@
     cfg.camera = facingMode;
     const grp = document.getElementById('grp-camera');
     grp.querySelectorAll('.pill-btn').forEach(b => b.classList.toggle('active', b.dataset.value === facingMode));
+    if (!cameraEnabled) return; // camera intentionally off — don't restart
     await startCamera();
     if (cfg.camera === 'environment') {
       if (faceTriggerActive) {
@@ -340,6 +342,34 @@
       faceTriggerWrap.classList.remove('hidden');
       instruction.textContent = faceTriggerActive ? 'Look at camera to start' : 'Tap anywhere or press button to start';
       if (faceTriggerActive) scheduleNextDetection();
+    }
+  }
+
+  async function toggleCameraFeed() {
+    if (appState !== 'idle') return;
+    if (cameraEnabled) {
+      cameraEnabled = false;
+      if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+      previewVid.srcObject = null;
+      camToggleBtn.classList.add('cam-off');
+      if (faceTriggerActive) {
+        faceTriggerActive = false;
+        faceTriggerWrap.classList.remove('ft-watching');
+      }
+      stopFaceDetection();
+      faceTriggerWrap.classList.add('hidden');
+      instruction.textContent = 'Tap 📷 to turn camera on';
+    } else {
+      cameraEnabled = true;
+      camToggleBtn.classList.remove('cam-off');
+      await startCamera();
+      if (cfg.camera === 'user') {
+        faceTriggerWrap.classList.remove('hidden');
+        instruction.textContent = faceTriggerActive ? 'Look at camera to start' : 'Tap anywhere or press button to start';
+        if (faceTriggerActive) scheduleNextDetection();
+      } else {
+        instruction.textContent = 'Tap anywhere or press button to start';
+      }
     }
   }
 
@@ -362,7 +392,7 @@
 
   camToggleBtn.addEventListener('click', e => {
     e.stopPropagation();
-    if (appState === 'idle') applyCamera(cfg.camera === 'user' ? 'environment' : 'user');
+    toggleCameraFeed();
   });
 
   // ── Face trigger ───────────────────────────────────────────────────────────

@@ -14,7 +14,7 @@ Golf Replay is a single-page web app (plain HTML + CSS + JS, no build tool) that
 
 There is no build step. Editing the three source files and pushing to `main` is all that is required to deploy.
 
-## Current version: `v7`
+## Current version: `v8`
 
 ### Version number — what it is and where to update it
 
@@ -61,7 +61,7 @@ Any trigger (screen tap, keyboard key, or Bluetooth button key) advances the sta
 | Button | Element | Visible when |
 |---|---|---|
 | Settings | `#settings-btn` | idle, countdown (hidden during recording / replay) |
-| Camera toggle | `#cam-toggle-btn` | idle only |
+| Camera toggle | `#cam-toggle-btn` | idle only — turns camera feed on/off; gets `.cam-off` class when off |
 | Face trigger | `#face-trigger-wrap` / `#face-trigger-btn` | idle, front camera only |
 
 ## Face trigger (hands-free)
