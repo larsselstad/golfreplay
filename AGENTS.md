@@ -14,7 +14,7 @@ Golf Replay is a single-page web app (plain HTML + CSS + JS, no build tool) that
 
 There is no build step. Editing the three source files and pushing to `main` is all that is required to deploy.
 
-## Current version: `v2`
+## Current version: `v6`
 
 ### Version number — what it is and where to update it
 
@@ -55,6 +55,15 @@ The app cycles through four states managed by `appState`:
 | `replay` | Recorded clip playing back (normal speed then slow motion) |
 
 Any trigger (screen tap, keyboard key, or Bluetooth button key) advances the state machine via `onTrigger()`.
+
+## Face trigger (hands-free)
+
+The 👁 button (bottom-right, front camera only) enables hands-free operation using face-api.js:
+
+- **Start:** In `idle` state, look at the camera for **1.5 s** (`FACE_DWELL_MS`) — countdown starts automatically.
+- **Stop:** In `recording` state with face trigger active, the app waits until the face is no longer frontal (i.e. the golfer looks away during the swing — `faceRecGone = true`). Once the face has looked away, looking back at the camera for **1 s** (`FACE_STOP_DWELL_MS`) stops recording.
+
+The `faceRecGone` flag is the "swing gate": it prevents the stop gesture from firing while the golfer is still facing the camera at the start of the recording. It is reset to `false` whenever recording starts or face detection stops.
 
 ## Input / trigger keys
 

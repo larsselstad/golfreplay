@@ -22,10 +22,10 @@
   const faceTriggerBtn  = document.getElementById('face-trigger-btn');
 
   // ── Version ────────────────────────────────────────────────────────────────
-  const APP_VERSION = 'v5';
+  const APP_VERSION = 'v6';
 
   // ── Config (mirrors the settings UI defaults) ──────────────────────────────
-  const cfg = { camera: 'user', countdown: 5, replays: 1, maxrec: 15 };
+  const cfg = { camera: 'user', countdown: 5, replays: 1 };
 
   // ── App state ──────────────────────────────────────────────────────────────
   let appState      = 'idle';   // idle | countdown | recording | replay
@@ -168,11 +168,7 @@
     recorder.start(100); // collect data in 100 ms chunks for reliability on iOS
     recSecs = 0;
     updateRecTime();
-    recTimer = setInterval(() => {
-      recSecs++;
-      updateRecTime();
-      if (recSecs >= cfg.maxrec) stopRecording();
-    }, 1000);
+    recTimer = setInterval(() => { recSecs++; updateRecTime(); }, 1000);
   }
 
   function stopRecording() {
@@ -280,6 +276,7 @@
           : 'Press to stop recording';
         settingsBtn.classList.add('hidden');
         if (faceTriggerActive && cfg.camera === 'user') {
+          faceRecGone = false;
           scheduleNextDetection();
         } else {
           stopFaceDetection();
@@ -321,8 +318,8 @@
   backdrop.addEventListener('click', closeSettings);
   doneBtn.addEventListener('click', closeSettings);
 
-  // Pill button groups — camera / countdown / replays / maxrec
-  ['camera', 'countdown', 'replays', 'maxrec'].forEach(key => {
+  // Pill button groups — camera / countdown / replays
+  ['camera', 'countdown', 'replays'].forEach(key => {
     const grp = document.getElementById(`grp-${key}`);
     grp.addEventListener('click', async e => {
       const btn = e.target.closest('.pill-btn');
@@ -358,6 +355,7 @@
   let faceDetectTimer    = null;
   let faceDwellStart     = null;
   let faceLastDetectTime = null;
+  let faceRecGone        = false; // true once face has left frame during recording
 
   const FACE_DWELL_MS        = 1500;
   const FACE_STOP_DWELL_MS   = 1000;
@@ -415,6 +413,7 @@
     faceDetectTimer    = null;
     faceDwellStart     = null;
     faceLastDetectTime = null;
+    faceRecGone        = false;
     if (faceTriggerWrap) updateDwellRing(0);
   }
 
@@ -463,16 +462,22 @@
     const dwellMs = appState === 'recording' ? FACE_STOP_DWELL_MS : FACE_DWELL_MS;
 
     if (looking) {
-      if (!faceDwellStart) faceDwellStart = now;
-      const elapsed = now - faceDwellStart;
-      if (appState === 'idle') updateDwellRing(Math.min(elapsed / dwellMs, 1));
-      if (elapsed >= dwellMs) {
-        stopFaceDetection();
-        if (appState === 'idle') startCountdown();
-        else stopRecording();
-        return;
+      if (appState === 'recording' && !faceRecGone) {
+        // Face still frontal at recording start — wait for golfer to look away first
+        faceDwellStart = null;
+      } else {
+        if (!faceDwellStart) faceDwellStart = now;
+        const elapsed = now - faceDwellStart;
+        if (appState === 'idle') updateDwellRing(Math.min(elapsed / dwellMs, 1));
+        if (elapsed >= dwellMs) {
+          stopFaceDetection();
+          if (appState === 'idle') startCountdown();
+          else stopRecording();
+          return;
+        }
       }
     } else {
+      if (appState === 'recording') faceRecGone = true;
       faceDwellStart = null;
       if (appState === 'idle') updateDwellRing(0);
     }

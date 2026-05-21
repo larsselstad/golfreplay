@@ -6,6 +6,12 @@ A web app for recording your golf swing and instantly replaying it — first at 
 
 ---
 
+## What's new in v5
+
+- **Face trigger stop** — when the face trigger is armed and recording is active, looking back at the camera after your swing (1 s dwell) stops recording automatically. The app waits until your face has turned away (during the swing) before the stop gesture becomes active, so it won't fire prematurely.
+
+---
+
 ## What's new in v4
 
 - **Removed** Bluetooth button detection (iOS Safari intercepts volume key events at the OS level — it never worked reliably on iPhone)
@@ -30,6 +36,7 @@ A web app for recording your golf swing and instantly replaying it — first at 
 |---|---|
 | Start countdown / Stop recording / Skip replay | Tap the screen or press a keyboard key (Space, Enter, arrow keys) |
 | Hands-free start | Tap 👁 to arm face trigger, then hold eye contact for 1.5 s |
+| Hands-free stop | After swing, look back at camera and hold eye contact for 1 s |
 | Open settings | Tap the ⚙️ gear icon |
 
 ---
@@ -37,6 +44,8 @@ A web app for recording your golf swing and instantly replaying it — first at 
 ## Face trigger
 
 Tap the 👁 button (bottom-right corner, front camera only) to arm face trigger mode. A green dwell ring fills over 1.5 s while you look directly at the camera — when it completes, the countdown starts. The mode stays active across all shots in the session; tap 👁 again to disarm.
+
+**Stopping with face trigger:** Once recording is running, look away to take your swing. After the swing, look back at the camera and hold eye contact for 1 s — recording stops automatically. The app won't trigger the stop while you're still looking at the camera at the start; it waits until your face has turned away (during the swing) before the stop gesture becomes active.
 
 > **Tip:** Position the phone so your face fills a reasonable portion of the frame. Very small faces at long distances may not be detected reliably.
 
