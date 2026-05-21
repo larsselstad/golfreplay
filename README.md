@@ -6,12 +6,19 @@ A web app for recording your golf swing and instantly replaying it — first at 
 
 ---
 
+## What's new in v4
+
+- **Removed** Bluetooth button detection (iOS Safari intercepts volume key events at the OS level — it never worked reliably on iPhone)
+- **Added** face trigger: tap the 👁 button to arm hands-free mode. Hold eye contact with the camera for 1.5 s and the countdown starts automatically. The mode stays active for the whole session — no need to re-arm between shots.
+
+---
+
 ## How it works
 
 1. Open the app — your camera preview fills the screen
-2. Press your Bluetooth remote button (or tap the screen) to start a countdown
+2. **Tap the screen** (or press a keyboard key) to start a countdown — or arm the 👁 face trigger and look at the camera
 3. Swing! Recording starts automatically when the countdown ends
-4. Press again (or tap) to stop recording
+4. Tap (or trigger) again to stop recording
 5. The clip replays immediately: once at 1× speed, then once at 0.5× slow motion
 6. The app returns to live preview, ready for the next swing
 
@@ -21,16 +28,17 @@ A web app for recording your golf swing and instantly replaying it — first at 
 
 | Action | Input |
 |---|---|
-| Start countdown / Stop recording / Skip replay | Bluetooth remote (Space, Enter, arrow keys, Volume Up/Down) or tap the screen |
+| Start countdown / Stop recording / Skip replay | Tap the screen or press a keyboard key (Space, Enter, arrow keys) |
+| Hands-free start | Tap 👁 to arm face trigger, then hold eye contact for 1.5 s |
 | Open settings | Tap the ⚙️ gear icon |
 
 ---
 
-## Bluetooth button setup
+## Face trigger
 
-Open **Settings → Bluetooth Button → Detect button press**, then press your remote. The app will detect the key it sends and remember it for future sessions.
+Tap the 👁 button (bottom-right corner, front camera only) to arm face trigger mode. A green dwell ring fills over 1.5 s while you look directly at the camera — when it completes, the countdown starts. The mode stays active across all shots in the session; tap 👁 again to disarm.
 
-> **Note:** Buttons that send Volume Up/Down (common for iPhone camera remotes like Dispho) may or may not reach the browser, depending on iOS version. If detection times out, try configuring your button to send a regular key (Space, Enter, etc.) via its companion app.
+> **Tip:** Position the phone so your face fills a reasonable portion of the frame. Very small faces at long distances may not be detected reliably.
 
 ---
 
@@ -41,7 +49,6 @@ Open **Settings → Bluetooth Button → Detect button press**, then press your 
 | Camera | Front / Back |
 | Countdown | 3 / 5 / 10 seconds |
 | Replay cycles | 1 / 2 / 3 |
-| Bluetooth Button | Detect / Clear saved key |
 
 ---
 
