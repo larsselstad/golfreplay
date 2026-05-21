@@ -6,6 +6,12 @@ A web app for recording your golf swing and instantly replaying it — first at 
 
 ---
 
+## What's new in v6
+
+- **Camera toggle button** — a 📷 button sits next to the 👁 face trigger in the bottom-right corner. Tap it to instantly switch between front and rear camera without opening Settings.
+
+---
+
 ## What's new in v5
 
 - **Face trigger stop** — when the face trigger is armed and recording is active, looking back at the camera after your swing (1 s dwell) stops recording automatically. The app waits until your face has turned away (during the swing) before the stop gesture becomes active, so it won't fire prematurely.
@@ -37,6 +43,7 @@ A web app for recording your golf swing and instantly replaying it — first at 
 | Start countdown / Stop recording / Skip replay | Tap the screen or press a keyboard key (Space, Enter, arrow keys) |
 | Hands-free start | Tap 👁 to arm face trigger, then hold eye contact for 1.5 s |
 | Hands-free stop | After swing, look back at camera and hold eye contact for 1 s |
+| Switch camera | Tap the 📷 button (bottom-right corner) |
 | Open settings | Tap the ⚙️ gear icon |
 
 ---

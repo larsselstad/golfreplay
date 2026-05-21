@@ -20,9 +20,10 @@
   const versionBadge    = document.getElementById('version-badge');
   const faceTriggerWrap = document.getElementById('face-trigger-wrap');
   const faceTriggerBtn  = document.getElementById('face-trigger-btn');
+  const camToggleBtn    = document.getElementById('cam-toggle-btn');
 
   // ── Version ────────────────────────────────────────────────────────────────
-  const APP_VERSION = 'v6';
+  const APP_VERSION = 'v7';
 
   // ── Config (mirrors the settings UI defaults) ──────────────────────────────
   const cfg = { camera: 'user', countdown: 5, replays: 1 };
@@ -79,9 +80,9 @@
     if (TRIGGER_KEYS.has(e.key)) { e.preventDefault(); onTrigger(); }
   });
 
-  // Tap anywhere that is NOT a settings or face-trigger element
+  // Tap anywhere that is NOT a settings or bottom-right-controls element
   document.addEventListener('pointerdown', e => {
-    if (e.target.closest('#settings-panel, #settings-btn, #settings-backdrop, #face-trigger-wrap')) return;
+    if (e.target.closest('#settings-panel, #settings-btn, #settings-backdrop, #hud-bottom-right')) return;
     onTrigger();
   });
 
@@ -250,6 +251,7 @@
     instruction.classList.remove('hidden');
     settingsBtn.classList.remove('hidden');
     faceTriggerWrap.classList.add('hidden');
+    camToggleBtn.classList.add('hidden');
 
     switch (s) {
       case 'idle':
@@ -257,6 +259,7 @@
         instruction.textContent = (faceTriggerActive && cfg.camera === 'user')
           ? 'Look at camera to start'
           : 'Tap anywhere or press button to start';
+        camToggleBtn.classList.remove('hidden');
         if (cfg.camera === 'user') {
           faceTriggerWrap.classList.remove('hidden');
           if (faceTriggerActive) scheduleNextDetection();
@@ -318,6 +321,28 @@
   backdrop.addEventListener('click', closeSettings);
   doneBtn.addEventListener('click', closeSettings);
 
+  // Applies a camera facing mode change: restarts stream, syncs pills, manages face-trigger state.
+  // Only safe to call while idle.
+  async function applyCamera(facingMode) {
+    cfg.camera = facingMode;
+    const grp = document.getElementById('grp-camera');
+    grp.querySelectorAll('.pill-btn').forEach(b => b.classList.toggle('active', b.dataset.value === facingMode));
+    await startCamera();
+    if (cfg.camera === 'environment') {
+      if (faceTriggerActive) {
+        faceTriggerActive = false;
+        faceTriggerWrap.classList.remove('ft-watching');
+      }
+      stopFaceDetection();
+      faceTriggerWrap.classList.add('hidden');
+      instruction.textContent = 'Tap anywhere or press button to start';
+    } else {
+      faceTriggerWrap.classList.remove('hidden');
+      instruction.textContent = faceTriggerActive ? 'Look at camera to start' : 'Tap anywhere or press button to start';
+      if (faceTriggerActive) scheduleNextDetection();
+    }
+  }
+
   // Pill button groups — camera / countdown / replays
   ['camera', 'countdown', 'replays'].forEach(key => {
     const grp = document.getElementById(`grp-${key}`);
@@ -327,24 +352,17 @@
       grp.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       const raw = btn.dataset.value;
-      cfg[key] = key === 'camera' ? raw : parseInt(raw, 10);
-      // Restart camera immediately if the facing mode changed (only safe while idle)
-      if (key === 'camera' && appState === 'idle') {
-        await startCamera();
-        if (cfg.camera === 'environment') {
-          if (faceTriggerActive) {
-            faceTriggerActive = false;
-            faceTriggerWrap.classList.remove('ft-watching');
-          }
-          stopFaceDetection();
-          faceTriggerWrap.classList.add('hidden');
-          instruction.textContent = 'Tap anywhere or press button to start';
-        } else {
-          faceTriggerWrap.classList.remove('hidden');
-          instruction.textContent = faceTriggerActive ? 'Look at camera to start' : 'Tap anywhere or press button to start';
-        }
+      if (key === 'camera') {
+        if (appState === 'idle') await applyCamera(raw);
+      } else {
+        cfg[key] = parseInt(raw, 10);
       }
     });
+  });
+
+  camToggleBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    if (appState === 'idle') applyCamera(cfg.camera === 'user' ? 'environment' : 'user');
   });
 
   // ── Face trigger ───────────────────────────────────────────────────────────

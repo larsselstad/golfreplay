@@ -6,7 +6,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-fullscreen">
   <title>Golf Replay</title>
-  <link rel="stylesheet" href="style.css?v=6">
+  <link rel="stylesheet" href="style.css?v=7">
 </head>
 <body>
 
@@ -38,9 +38,13 @@
 
   <button id="settings-btn" aria-label="Settings">⚙</button>
 
-  <!-- Face trigger — bottom right, visible in idle state with front camera only -->
-  <div id="face-trigger-wrap" class="hidden">
-    <button id="face-trigger-btn" aria-label="Face trigger">👁</button>
+  <!-- Bottom-right controls: camera toggle + face trigger -->
+  <div id="hud-bottom-right">
+    <button id="cam-toggle-btn" class="hidden" aria-label="Switch camera">📷</button>
+    <!-- Face trigger — visible in idle state with front camera only -->
+    <div id="face-trigger-wrap" class="hidden">
+      <button id="face-trigger-btn" aria-label="Face trigger">👁</button>
+    </div>
   </div>
 </div>
 
@@ -79,6 +83,6 @@
   <button id="done-btn">Done</button>
 </div>
 
-<script src="app.js?v=6"></script>
+<script src="app.js?v=7"></script>
 </body>
 </html>

@@ -14,7 +14,7 @@ Golf Replay is a single-page web app (plain HTML + CSS + JS, no build tool) that
 
 There is no build step. Editing the three source files and pushing to `main` is all that is required to deploy.
 
-## Current version: `v6`
+## Current version: `v7`
 
 ### Version number — what it is and where to update it
 
@@ -55,6 +55,14 @@ The app cycles through four states managed by `appState`:
 | `replay` | Recorded clip playing back (normal speed then slow motion) |
 
 Any trigger (screen tap, keyboard key, or Bluetooth button key) advances the state machine via `onTrigger()`.
+
+## HUD buttons
+
+| Button | Element | Visible when |
+|---|---|---|
+| Settings | `#settings-btn` | idle, countdown (hidden during recording / replay) |
+| Camera toggle | `#cam-toggle-btn` | idle only |
+| Face trigger | `#face-trigger-wrap` / `#face-trigger-btn` | idle, front camera only |
 
 ## Face trigger (hands-free)
 
