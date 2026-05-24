@@ -4,9 +4,9 @@
   "description": "A web app for recording your golf swing and instantly replaying it — first at normal speed, then in slow motion.",
   "main": "js/main.js",
   "scripts": {
-    "lint": "biome lint js/ style.css",
-    "format": "biome format --write js/ style.css",
-    "check": "biome check --write js/ style.css",
+    "lint": "biome lint js/ css/",
+    "format": "biome format --write js/ css/",
+    "check": "biome check --write js/ css/",
     "test": "playwright test --pass-with-no-tests",
     "test:ui": "playwright test --ui",
     "test:slow": "SLOWMO=500 playwright test --headed"

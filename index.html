@@ -6,51 +6,55 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-fullscreen">
   <title>Golf Replay</title>
-  <link rel="stylesheet" href="style.css?v=12">
+  <link rel="stylesheet" href="css/base.css?v=13">
+  <link rel="stylesheet" href="css/video.css?v=13">
+  <link rel="stylesheet" href="css/hud.css?v=13">
+  <link rel="stylesheet" href="css/controls.css?v=13">
+  <link rel="stylesheet" href="css/settings.css?v=13">
 </head>
 <body>
 
 <!-- Live camera preview -->
-<video id="preview" autoplay muted playsinline></video>
+<video id="preview" class="z-1" autoplay muted playsinline></video>
 
 <!-- Replay playback — muted because no audio was recorded -->
-<video id="replay" class="hidden" muted playsinline></video>
+<video id="replay" class="z-2 hidden" muted playsinline></video>
 
 <!-- HUD -->
-<div id="overlay">
-  <div id="status-badge">Ready</div>
+<div id="overlay" class="fixed inset-0 z-10 pointer-none">
+  <div id="status-badge" class="abs top-safe-16 left-4 glass rounded-pill px-2 py-1 text-white text-xs font-bold tracking-wide uppercase">Ready</div>
 
-  <div id="rec-indicator" class="hidden">
+  <div id="rec-indicator" class="abs top-safe-16 left-4 glass rounded-pill px-2 py-1 text-white text-sm font-semibold flex items-center gap-1 hidden">
     <span class="rec-dot"></span>
     <span id="rec-time">0:00</span>
   </div>
 
-  <div id="countdown" class="hidden"></div>
+  <div id="countdown" class="countdown abs center-xy hidden"></div>
 
-  <div id="replay-info" class="hidden">
+  <div id="replay-info" class="abs top-safe-16 center-x flex flex-col items-center gap-1 nowrap hidden">
     <div id="speed-badge" class="speed-badge">▶ Normal Speed</div>
     <div id="cycle-counter" class="cycle-counter"></div>
   </div>
 
-  <div id="instruction">Tap anywhere or press button to start</div>
-  <div id="version-badge"></div>
-  <div id="error-banner" class="hidden"></div>
+  <div id="instruction" class="abs bottom-safe-36 center-x glass rounded-pill px-3 py-1 text-near-white text-sm font-medium nowrap">Tap anywhere or press button to start</div>
+  <div id="version-badge" class="version-badge abs bottom-safe-12 left-4 pointer-none"></div>
+  <div id="error-banner" class="error-banner abs center-xy hidden"></div>
 
-  <button id="settings-btn" aria-label="Settings">⚙</button>
+  <button id="settings-btn" class="abs top-safe-12 right-4 size-44 glass rounded-full btn flex items-center justify-center text-white text-icon line-1 pointer-auto" aria-label="Settings">⚙</button>
 
   <!-- Bottom-right controls: camera toggle + face trigger -->
-  <div id="hud-bottom-right">
-    <button id="cam-toggle-btn" class="hidden" aria-label="Switch camera">📷</button>
+  <div id="hud-bottom-right" class="abs bottom-safe-12 right-4 flex gap-1 items-center pointer-none">
+    <button id="cam-toggle-btn" class="size-50 glass rounded-full btn flex items-center justify-center text-dim text-icon line-1 pointer-auto hidden" aria-label="Switch camera">📷</button>
     <!-- Face trigger — visible in idle state with front camera only -->
-    <div id="face-trigger-wrap" class="hidden">
-      <button id="face-trigger-btn" aria-label="Face trigger">👁</button>
+    <div id="face-trigger-wrap" class="face-ring size-50 rounded-full pointer-auto hidden">
+      <button id="face-trigger-btn" class="face-btn w-full h-full glass rounded-full btn flex items-center justify-center text-dim text-icon line-1 transition-color" aria-label="Face trigger">👁</button>
     </div>
   </div>
 </div>
 
 <!-- Settings -->
-<div id="settings-backdrop" class="hidden"></div>
-<div id="settings-panel" role="dialog" aria-label="Settings">
+<div id="settings-backdrop" class="settings-backdrop hidden"></div>
+<div id="settings-panel" class="settings-panel" role="dialog" aria-label="Settings">
   <div class="drag-handle"></div>
   <div class="panel-title">Settings</div>
 
@@ -80,9 +84,9 @@
     </div>
   </div>
 
-  <button id="done-btn">Done</button>
+  <button id="done-btn" class="done-btn">Done</button>
 </div>
 
-<script type="module" src="js/main.js?v=12"></script>
+<script type="module" src="js/main.js?v=13"></script>
 </body>
 </html>

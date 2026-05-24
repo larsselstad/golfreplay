@@ -1,0 +1,107 @@
+/* ── Countdown ────────────────────────────────────────────────────────────── */
+/* Rendered inside the overlay (z-index 10), always above both video layers. */
+.countdown {
+  color: var(--color-white);
+  font-size: min(50vw, 220px);
+  font-weight: 800;
+  text-shadow: 0 0 80px rgba(0, 0, 0, 0.5);
+  line-height: 1;
+}
+.countdown.animating {
+  animation: cdPop 1s ease-out forwards;
+}
+.countdown.cd-go {
+  color: #30d158;
+}
+.countdown.cd-go.animating {
+  animation: cdGoFlash 0.6s ease-out forwards;
+}
+
+@keyframes cdPop {
+  0% {
+    transform: translate(-50%, -50%) scale(1.4);
+    opacity: 0;
+  }
+  12% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  75% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(0.75);
+    opacity: 0;
+  }
+}
+
+@keyframes cdGoFlash {
+  0% {
+    transform: translate(-50%, -50%) scale(0.9);
+    opacity: 1;
+  }
+  20% {
+    transform: translate(-50%, -50%) scale(1.05);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.3);
+    opacity: 0;
+  }
+}
+
+/* ── Recording indicator dot ──────────────────────────────────────────────── */
+.rec-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-full);
+  background: #ff3b30;
+  flex-shrink: 0;
+  animation: blink 1.2s ease-in-out infinite;
+}
+
+/* ── Replay info badges ───────────────────────────────────────────────────── */
+.speed-badge {
+  background: var(--glass-bg-md);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  color: var(--color-white);
+  font-size: 15px;
+  font-weight: 700;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-pill);
+}
+
+.cycle-counter {
+  background: rgba(0, 0, 0, 0.45);
+  color: var(--color-muted);
+  font-size: 12px;
+  font-weight: 600;
+  padding: var(--space-half) var(--space-2);
+  border-radius: var(--radius-md);
+}
+
+/* ── Version badge ────────────────────────────────────────────────────────── */
+.version-badge {
+  color: var(--color-ghost);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+
+/* ── Error banner ─────────────────────────────────────────────────────────── */
+.error-banner {
+  background: rgba(255, 59, 48, 0.92);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  color: var(--color-white);
+  font-size: 15px;
+  font-weight: 600;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-lg);
+  text-align: center;
+  max-width: min(90vw, 340px);
+  line-height: 1.5;
+  white-space: pre-line;
+}

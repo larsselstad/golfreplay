@@ -1,0 +1,318 @@
+/* ── Design tokens ────────────────────────────────────────────────────────── */
+:root {
+  /* Safe-area */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+
+  /* Frosted glass */
+  --glass-bg: rgba(0, 0, 0, 0.55);
+  --glass-bg-md: rgba(0, 0, 0, 0.65);
+  --glass-blur: blur(12px);
+
+  /* Text colors */
+  --color-white: #fff;
+  --color-near-white: rgba(255, 255, 255, 0.88);
+  --color-muted: rgba(255, 255, 255, 0.75);
+  --color-dim: rgba(255, 255, 255, 0.6);
+  --color-faint: rgba(255, 255, 255, 0.45);
+  --color-ghost: rgba(255, 255, 255, 0.3);
+
+  /* Border radii */
+  --radius-sm: 12px;
+  --radius-md: 14px;
+  --radius-lg: 16px;
+  --radius-pill: 20px;
+  --radius-xl: 24px;
+  --radius-full: 50%;
+
+  /* Spacing — 8px base grid */
+  --space-half: 4px;
+  --space-1: 8px;
+  --space-2: 16px;
+  --space-3: 24px;
+  --space-4: 32px;
+
+  /* Button sizes */
+  --btn-size-sm: 44px;
+  --btn-size-md: 50px;
+}
+
+/* ── Reset ────────────────────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  background: #000;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* ── Display ──────────────────────────────────────────────────────────────── */
+.flex {
+  display: flex;
+}
+.flex-col {
+  flex-direction: column;
+}
+.items-center {
+  align-items: center;
+}
+.justify-center {
+  justify-content: center;
+}
+.shrink-0 {
+  flex-shrink: 0;
+}
+.flex-1 {
+  flex: 1;
+}
+.gap-1 {
+  gap: var(--space-1);
+}
+.w-full {
+  width: 100%;
+}
+.h-full {
+  height: 100%;
+}
+
+/* .hidden must come after .flex so display:none wins when both classes are present */
+.hidden {
+  display: none;
+}
+
+/* ── Position ─────────────────────────────────────────────────────────────── */
+.abs {
+  position: absolute;
+}
+.fixed {
+  position: fixed;
+}
+.inset-0 {
+  inset: 0;
+}
+.z-1 {
+  z-index: 1;
+}
+.z-2 {
+  z-index: 2;
+}
+.z-10 {
+  z-index: 10;
+}
+.z-90 {
+  z-index: 90;
+}
+.z-100 {
+  z-index: 100;
+}
+
+/* ── Safe-area positioning ────────────────────────────────────────────────── */
+.top-safe-12 {
+  top: calc(var(--safe-top) + 12px);
+}
+.top-safe-16 {
+  top: calc(var(--safe-top) + 16px);
+}
+.bottom-safe-12 {
+  bottom: calc(var(--safe-bottom) + 12px);
+}
+.bottom-safe-36 {
+  bottom: calc(var(--safe-bottom) + 36px);
+}
+.left-4 {
+  left: var(--space-2);
+}
+.right-4 {
+  right: var(--space-2);
+}
+.center-x {
+  left: 50%;
+  transform: translateX(-50%);
+}
+.center-xy {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* ── Sizing ───────────────────────────────────────────────────────────────── */
+.size-44 {
+  width: var(--btn-size-sm);
+  height: var(--btn-size-sm);
+}
+.size-50 {
+  width: var(--btn-size-md);
+  height: var(--btn-size-md);
+}
+
+/* ── Pointer events ───────────────────────────────────────────────────────── */
+.pointer-none {
+  pointer-events: none;
+}
+.pointer-auto {
+  pointer-events: auto;
+}
+
+/* ── Frosted glass ────────────────────────────────────────────────────────── */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+}
+
+/* ── Border radius ────────────────────────────────────────────────────────── */
+.rounded-pill {
+  border-radius: var(--radius-pill);
+}
+.rounded-full {
+  border-radius: var(--radius-full);
+}
+.rounded-md {
+  border-radius: var(--radius-md);
+}
+
+/* ── Text color ───────────────────────────────────────────────────────────── */
+.text-white {
+  color: var(--color-white);
+}
+.text-near-white {
+  color: var(--color-near-white);
+}
+.text-muted {
+  color: var(--color-muted);
+}
+.text-dim {
+  color: var(--color-dim);
+}
+.text-faint {
+  color: var(--color-faint);
+}
+.text-ghost {
+  color: var(--color-ghost);
+}
+
+/* ── Font size ────────────────────────────────────────────────────────────── */
+.text-11 {
+  font-size: 11px;
+}
+.text-xs {
+  font-size: 12px;
+}
+.text-sm {
+  font-size: 14px;
+}
+.text-base {
+  font-size: 15px;
+}
+.text-lg {
+  font-size: 16px;
+}
+.text-xl {
+  font-size: 18px;
+}
+.text-icon {
+  font-size: 20px;
+}
+
+/* ── Font weight ──────────────────────────────────────────────────────────── */
+.font-medium {
+  font-weight: 500;
+}
+.font-semibold {
+  font-weight: 600;
+}
+.font-bold {
+  font-weight: 700;
+}
+.font-extrabold {
+  font-weight: 800;
+}
+
+/* ── Padding (8px grid) ───────────────────────────────────────────────────── */
+.px-1 {
+  padding-left: var(--space-1);
+  padding-right: var(--space-1);
+}
+.px-2 {
+  padding-left: var(--space-2);
+  padding-right: var(--space-2);
+}
+.px-3 {
+  padding-left: var(--space-3);
+  padding-right: var(--space-3);
+}
+.py-half {
+  padding-top: var(--space-half);
+  padding-bottom: var(--space-half);
+}
+.py-1 {
+  padding-top: var(--space-1);
+  padding-bottom: var(--space-1);
+}
+.py-2 {
+  padding-top: var(--space-2);
+  padding-bottom: var(--space-2);
+}
+.p-1 {
+  padding: var(--space-1);
+}
+.p-2 {
+  padding: var(--space-2);
+}
+
+/* ── Typography ───────────────────────────────────────────────────────────── */
+.uppercase {
+  text-transform: uppercase;
+}
+.tracking-sm {
+  letter-spacing: 0.08em;
+}
+.tracking-md {
+  letter-spacing: 0.1em;
+}
+.tracking-wide {
+  letter-spacing: 0.12em;
+}
+.nowrap {
+  white-space: nowrap;
+}
+.line-1 {
+  line-height: 1;
+}
+.text-center {
+  text-align: center;
+}
+
+/* ── Button reset ─────────────────────────────────────────────────────────── */
+.btn {
+  border: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ── Transition ───────────────────────────────────────────────────────────── */
+.transition-color {
+  transition: color 0.2s;
+}
+
+/* ── Shared animation ─────────────────────────────────────────────────────── */
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.2;
+  }
+}

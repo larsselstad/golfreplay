@@ -1,4 +1,4 @@
-export const APP_VERSION = 'v12';
+export const APP_VERSION = 'v13';
 
 const CFG_KEY = 'cfg';
 const CFG_DEFAULTS = { camera: 'user', countdown: 5, replays: 1 };

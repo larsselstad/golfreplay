@@ -1,0 +1,25 @@
+/* ── Face trigger ring ────────────────────────────────────────────────────── */
+.face-ring {
+  padding: 3px;
+  background: rgba(255, 255, 255, 0.18);
+}
+.face-ring.ft-watching {
+  background: conic-gradient(
+    #30d158 0% var(--dwell, 0%),
+    rgba(48, 209, 88, 0.3) var(--dwell, 0%) 100%
+  );
+}
+.face-ring.ft-watching .face-btn {
+  color: var(--color-white);
+}
+
+/* ── Face button loading state ────────────────────────────────────────────── */
+.face-btn.ft-loading {
+  animation: blink 1.2s ease-in-out infinite;
+}
+
+/* ── Camera-off state ─────────────────────────────────────────────────────── */
+.cam-off {
+  background: rgba(255, 59, 48, 0.45);
+  color: rgba(255, 255, 255, 0.9);
+}
