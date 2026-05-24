@@ -7,7 +7,7 @@
 	},
 	"files": {
 		"ignoreUnknown": true,
-		"includes": ["app.js", "style.css"]
+		"includes": ["app.js", "style.css", "playwright.config.js", "tests/**/*.js"]
 	},
 	"formatter": {
 		"enabled": true,

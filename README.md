@@ -134,6 +134,16 @@ npx serve .
 | `index.html` | HTML structure and asset references (versioned with `?v=N`) |
 | `style.css` | All styles |
 | `app.js` | All app logic |
-| `package.json` | npm scripts for linting and formatting |
+| `package.json` | npm scripts for linting, formatting, and testing |
 | `biome.json` | Biome configuration |
+| `playwright.config.js` | Playwright test configuration |
+| `tests/` | Playwright test files |
 | `AGENTS.md` | Project conventions for AI agents and contributors |
+
+## Testing
+
+```bash
+npm test            # headless, for CI and quick checks
+npm run test:ui     # opens the Playwright UI explorer (interactive, step through tests)
+npm run test:slow   # runs in a visible browser window at half-speed (500 ms between actions)
+```

@@ -96,9 +96,22 @@ Users can teach the app a new key via **Settings → Bluetooth Button → Detect
 npm run lint    # lint app.js and style.css
 npm run format  # format app.js and style.css in place
 npm run check   # lint + format together (use before committing)
+npm test        # run Playwright tests headless
 ```
 
 Run `npm run check` before committing to keep the code consistently formatted and lint-free.
+
+## Testing
+
+[Playwright](https://playwright.dev) is used for integration tests. Tests run against a local `serve` instance of `index.html` with Chromium using fake media streams so `getUserMedia` works headless.
+
+```bash
+npm test            # headless, for CI and quick checks
+npm run test:ui     # opens the Playwright UI explorer (interactive, step through tests)
+npm run test:slow   # runs in a visible browser window at half-speed (500 ms between actions)
+```
+
+Run `npm test` before committing to verify no regressions. Add new test files under `tests/` alongside any feature changes.
 
 ## Coding conventions
 

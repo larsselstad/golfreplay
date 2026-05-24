@@ -6,7 +6,10 @@
   "scripts": {
     "lint": "biome lint app.js style.css",
     "format": "biome format --write app.js style.css",
-    "check": "biome check --write app.js style.css"
+    "check": "biome check --write app.js style.css",
+    "test": "playwright test --pass-with-no-tests",
+    "test:ui": "playwright test --ui",
+    "test:slow": "SLOWMO=500 playwright test --headed"
   },
   "repository": {
     "type": "git",
@@ -21,6 +24,8 @@
   },
   "homepage": "https://github.com/larsselstad/golfreplay#readme",
   "devDependencies": {
-    "@biomejs/biome": "2.4.15"
+    "@biomejs/biome": "2.4.15",
+    "@playwright/test": "^1.60.0",
+    "serve": "^14.2.6"
   }
 }

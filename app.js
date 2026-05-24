@@ -23,7 +23,7 @@
   const camToggleBtn = document.getElementById('cam-toggle-btn');
 
   // ── Version ────────────────────────────────────────────────────────────────
-  const APP_VERSION = 'v9';
+  const APP_VERSION = 'v10';
 
   // ── Config (mirrors the settings UI defaults) ──────────────────────────────
   const cfg = { camera: 'user', countdown: 5, replays: 1 };
