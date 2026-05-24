@@ -21,9 +21,10 @@ Golf Replay is a single-page web app (plain HTML + CSS + JS, no build tool) that
 | `js/countdown.js` | Countdown logic |
 | `js/recording.js` | MediaRecorder recording logic |
 | `js/replay.js` | Replay playback logic |
-| `js/settings.js` | Settings panel, camera toggle, pill button wiring |
+| `js/settings.js` | Settings panel — open/close, pill button wiring, `applyCamera` |
+| `js/controls.js` | HUD buttons — camera toggle (`toggleCameraFeed`) and face trigger button |
 | `js/face.js` | Face-trigger detection (face-api.js) |
-| `js/input.js` | Keyboard and pointer event handling |
+| `js/recordtrigger.js` | Document keyboard and pointer listeners — fires `onTrigger()` to advance state |
 | `package.json` | npm scripts for linting and formatting (Biome) |
 | `biome.json` | Biome configuration |
 
@@ -100,7 +101,7 @@ The `faceRecGone` flag is the "swing gate": it prevents the stop gesture from fi
 
 - Built-in: `' '`, `'Enter'`, `'ArrowRight'`, `'ArrowLeft'`, `'ArrowUp'`, `'ArrowDown'`, `'AudioVolumeUp'`, `'AudioVolumeDown'`
 
-To add a new built-in trigger key, add it to the `TRIGGER_KEYS` set declaration in `js/input.js`.
+To add a new built-in trigger key, add it to the `TRIGGER_KEYS` set declaration in `js/recordtrigger.js`.
 
 ## Config persistence
 

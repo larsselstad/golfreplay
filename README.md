@@ -113,15 +113,16 @@ npx serve .
 | `css/controls.css` | Control button component classes (face-ring, cam-off) |
 | `css/settings.css` | Settings panel component classes |
 | `js/main.js` | Entry point — bootstraps the app and imports all other modules |
-| `js/state.js` | Shared DOM refs, config (`cfg`), and mutable state object |
+| `js/state.js` | Config (`cfg`), `APP_VERSION`, `saveCfg`, and mutable `state` object |
 | `js/camera.js` | Camera startup (`startCamera`) |
 | `js/ui.js` | `setState`, `showError`, `hideError` |
 | `js/countdown.js` | Countdown logic |
 | `js/recording.js` | MediaRecorder recording logic |
 | `js/replay.js` | Replay playback logic |
-| `js/settings.js` | Settings panel, camera toggle, pill button wiring |
+| `js/settings.js` | Settings panel — open/close, pill button wiring, `applyCamera` |
+| `js/controls.js` | HUD buttons — camera toggle (`toggleCameraFeed`) and face trigger button |
 | `js/face.js` | Face-trigger detection (face-api.js) |
-| `js/input.js` | Keyboard and pointer input handling |
+| `js/recordtrigger.js` | Document keyboard and pointer listeners — fires `onTrigger()` to advance state |
 | `package.json` | npm scripts for linting, formatting, and testing |
 | `biome.json` | Biome configuration |
 | `playwright.config.js` | Playwright test configuration |

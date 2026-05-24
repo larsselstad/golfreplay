@@ -234,8 +234,3 @@ document.addEventListener('visibilitychange', () => {
     updateDwellRing(0);
   }
 });
-
-faceTriggerBtn.addEventListener('click', (e) => {
-  e.stopPropagation();
-  toggleFaceTrigger();
-});
