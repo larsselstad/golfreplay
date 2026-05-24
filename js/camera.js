@@ -1,5 +1,7 @@
-import { cfg, previewVid, state } from './state.js';
+import { cfg, state } from './state.js';
 import { hideError, showError } from './ui.js';
+
+const previewVid = document.getElementById('preview');
 
 export async function startCamera() {
   if (state.stream)

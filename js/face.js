@@ -1,13 +1,11 @@
 import { startCountdown } from './countdown.js';
 import { stopRecording } from './recording.js';
-import {
-  cfg,
-  faceTriggerBtn,
-  faceTriggerWrap,
-  instruction,
-  previewVid,
-  state,
-} from './state.js';
+import { cfg, state } from './state.js';
+
+const faceTriggerBtn = document.getElementById('face-trigger-btn');
+const faceTriggerWrap = document.getElementById('face-trigger-wrap');
+const instruction = document.getElementById('instruction');
+const previewVid = document.getElementById('preview');
 
 const FACE_DWELL_MS = 1500;
 const FACE_STOP_DWELL_MS = 1000;

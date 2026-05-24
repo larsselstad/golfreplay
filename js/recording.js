@@ -1,6 +1,8 @@
 import { startReplay } from './replay.js';
-import { recTimeEl, state } from './state.js';
+import { state } from './state.js';
 import { setState, showError } from './ui.js';
+
+const recTimeEl = document.getElementById('rec-time');
 
 function bestMime() {
   const candidates = [

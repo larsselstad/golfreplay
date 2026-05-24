@@ -3,19 +3,17 @@
 // happen inside function bodies, never at module evaluation time.
 
 import { scheduleNextDetection, stopFaceDetection } from './face.js';
-import {
-  camToggleBtn,
-  cfg,
-  countdownEl,
-  errorBanner,
-  faceTriggerWrap,
-  instruction,
-  recIndicator,
-  replayInfo,
-  settingsBtn,
-  state,
-  statusBadge,
-} from './state.js';
+import { cfg, state } from './state.js';
+
+const camToggleBtn = document.getElementById('cam-toggle-btn');
+const countdownEl = document.getElementById('countdown');
+const errorBanner = document.getElementById('error-banner');
+const faceTriggerWrap = document.getElementById('face-trigger-wrap');
+const instruction = document.getElementById('instruction');
+const recIndicator = document.getElementById('rec-indicator');
+const replayInfo = document.getElementById('replay-info');
+const settingsBtn = document.getElementById('settings-btn');
+const statusBadge = document.getElementById('status-badge');
 
 export function setState(s) {
   state.appState = s;

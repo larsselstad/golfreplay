@@ -1,6 +1,8 @@
 import { startRecording } from './recording.js';
-import { cfg, countdownEl, state } from './state.js';
+import { cfg, state } from './state.js';
 import { setState } from './ui.js';
+
+const countdownEl = document.getElementById('countdown');
 
 export function startCountdown() {
   if (!state.stream) return;

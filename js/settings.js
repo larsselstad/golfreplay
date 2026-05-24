@@ -1,18 +1,15 @@
 import { startCamera } from './camera.js';
 import { scheduleNextDetection, stopFaceDetection } from './face.js';
-import {
-  backdrop,
-  camToggleBtn,
-  cfg,
-  doneBtn,
-  faceTriggerWrap,
-  instruction,
-  previewVid,
-  saveCfg,
-  settingsBtn,
-  settingsPanel,
-  state,
-} from './state.js';
+import { cfg, saveCfg, state } from './state.js';
+
+const backdrop = document.getElementById('settings-backdrop');
+const camToggleBtn = document.getElementById('cam-toggle-btn');
+const doneBtn = document.getElementById('done-btn');
+const faceTriggerWrap = document.getElementById('face-trigger-wrap');
+const instruction = document.getElementById('instruction');
+const previewVid = document.getElementById('preview');
+const settingsBtn = document.getElementById('settings-btn');
+const settingsPanel = document.getElementById('settings-panel');
 
 export function openSettings() {
   state.settingsOpen = true;

@@ -1,12 +1,10 @@
-import {
-  cfg,
-  cycleCounter,
-  previewVid,
-  replayVid,
-  speedBadge,
-  state,
-} from './state.js';
+import { cfg, state } from './state.js';
 import { setState } from './ui.js';
+
+const cycleCounter = document.getElementById('cycle-counter');
+const previewVid = document.getElementById('preview');
+const replayVid = document.getElementById('replay');
+const speedBadge = document.getElementById('speed-badge');
 
 export function startReplay() {
   setState('replay');

@@ -15,7 +15,7 @@ Golf Replay is a single-page web app (plain HTML + CSS + JS, no build tool) that
 | `css/controls.css` | Control button component classes |
 | `css/settings.css` | Settings panel component classes |
 | `js/main.js` | Entry point — bootstraps app (version badge, `setState('idle')`, `startCamera()`) and imports all modules |
-| `js/state.js` | Shared DOM refs, `cfg`, `APP_VERSION`, and `state` object (all mutable state) |
+| `js/state.js` | `cfg`, `APP_VERSION`, `saveCfg`, and `state` object (all mutable state) |
 | `js/camera.js` | `startCamera` |
 | `js/ui.js` | `setState`, `showError`, `hideError` |
 | `js/countdown.js` | Countdown logic |
@@ -29,7 +29,7 @@ Golf Replay is a single-page web app (plain HTML + CSS + JS, no build tool) that
 
 There is no build step. Modules are loaded as native ES modules via `<script type="module">`. Editing source files and pushing to `main` is all that is required to deploy.
 
-## Current version: `v13`
+## Current version: `v14`
 
 ### Version number — what it is and where to update it
 
@@ -47,21 +47,21 @@ The version badge is displayed in the bottom-left corner of the app at runtime.
 
 **Rule: increment the version whenever any source file changes.**
 
-Example — bumping from `v12` to `v13`:
+Example — bumping from `v13` to `v14`:
 
 ```html
 <!-- index.html -->
-<link rel="stylesheet" href="css/base.css?v=13">
-<link rel="stylesheet" href="css/video.css?v=13">
-<link rel="stylesheet" href="css/hud.css?v=13">
-<link rel="stylesheet" href="css/controls.css?v=13">
-<link rel="stylesheet" href="css/settings.css?v=13">
-<script type="module" src="js/main.js?v=13"></script>
+<link rel="stylesheet" href="css/base.css?v=14">
+<link rel="stylesheet" href="css/video.css?v=14">
+<link rel="stylesheet" href="css/hud.css?v=14">
+<link rel="stylesheet" href="css/controls.css?v=14">
+<link rel="stylesheet" href="css/settings.css?v=14">
+<script type="module" src="js/main.js?v=14"></script>
 ```
 
 ```js
 // js/state.js
-export const APP_VERSION = 'v13';
+export const APP_VERSION = 'v14';
 ```
 
 ## App states
@@ -164,4 +164,5 @@ Styles live in `css/` as five focused files loaded in order:
 - **No comments for obvious code.** Only add comments for non-obvious logic or constraints.
 - **CSS custom properties throughout.** All spacing, colour, and radius values use tokens from `:root` in `css/base.css`. Do not inline raw values when a token exists.
 - **No ID selectors in CSS.** Use class selectors only.
+- **DOM refs live in their module.** Each module calls `document.getElementById(...)` locally for the elements it needs. `state.js` holds only shared mutable state — no DOM refs. For elements shared by several modules, each module defines its own local binding.
 - **iOS Safari is the primary target.** Test camera, recording, and replay on Safari on iPhone.
