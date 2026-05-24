@@ -9,7 +9,11 @@ Golf Replay is a single-page web app (plain HTML + CSS + JS, no build tool) that
 | File | Role |
 |---|---|
 | `index.html` | All markup, including the HUD, settings panel, and overlay elements |
-| `style.css` | All styles |
+| `css/base.css` | Design tokens (`:root` CSS custom properties) and all utility classes |
+| `css/video.css` | Video element base styles |
+| `css/hud.css` | HUD overlay component classes |
+| `css/controls.css` | Control button component classes |
+| `css/settings.css` | Settings panel component classes |
 | `js/main.js` | Entry point — bootstraps app (version badge, `setState('idle')`, `startCamera()`) and imports all modules |
 | `js/state.js` | Shared DOM refs, `cfg`, `APP_VERSION`, and `state` object (all mutable state) |
 | `js/camera.js` | `startCamera` |
@@ -25,7 +29,7 @@ Golf Replay is a single-page web app (plain HTML + CSS + JS, no build tool) that
 
 There is no build step. Modules are loaded as native ES modules via `<script type="module">`. Editing source files and pushing to `main` is all that is required to deploy.
 
-## Current version: `v12`
+## Current version: `v13`
 
 ### Version number — what it is and where to update it
 
@@ -33,7 +37,7 @@ The version number is a simple string (e.g. `v2`, `v3`) used to bust the browser
 
 | Location | What to change |
 |---|---|
-| `index.html` line with `style.css` | `href="style.css?v=N"` → increment `N` |
+| `index.html` CSS links | `href="css/base.css?v=N"` etc. → increment `N` on each link |
 | `index.html` line with `main.js` | `src="js/main.js?v=N"` → increment `N` |
 | `js/state.js` near the top | `const APP_VERSION = 'vN';` → increment `N` |
 
@@ -43,17 +47,21 @@ The version badge is displayed in the bottom-left corner of the app at runtime.
 
 **Rule: increment the version whenever any source file changes.**
 
-Example — bumping from `v11` to `v12`:
+Example — bumping from `v12` to `v13`:
 
 ```html
 <!-- index.html -->
-<link rel="stylesheet" href="style.css?v=12">
-<script type="module" src="js/main.js?v=12"></script>
+<link rel="stylesheet" href="css/base.css?v=13">
+<link rel="stylesheet" href="css/video.css?v=13">
+<link rel="stylesheet" href="css/hud.css?v=13">
+<link rel="stylesheet" href="css/controls.css?v=13">
+<link rel="stylesheet" href="css/settings.css?v=13">
+<script type="module" src="js/main.js?v=13"></script>
 ```
 
 ```js
 // js/state.js
-export const APP_VERSION = 'v12';
+export const APP_VERSION = 'v13';
 ```
 
 ## App states
@@ -103,8 +111,8 @@ User settings (`camera`, `countdown`, `replays`) are persisted to `localStorage`
 [Biome](https://biomejs.dev) is used for linting and formatting. There is no bundler or transpiler — the plain-file deployment model is unchanged.
 
 ```bash
-npm run lint    # lint app.js and style.css
-npm run format  # format app.js and style.css in place
+npm run lint    # lint js/**/*.js and css/**/*.css
+npm run format  # format js/**/*.js and css/**/*.css in place
 npm run check   # lint + format together (use before committing)
 npm test        # run Playwright tests headless
 ```
@@ -123,10 +131,37 @@ npm run test:slow   # runs in a visible browser window at half-speed (500 ms bet
 
 Run `npm test` before committing to verify no regressions. Add new test files under `tests/` alongside any feature changes.
 
+## CSS architecture
+
+Styles live in `css/` as five focused files loaded in order:
+
+| File | Contents |
+|---|---|
+| `css/base.css` | `:root` design tokens + all single-purpose utility classes |
+| `css/video.css` | Video element base styles |
+| `css/hud.css` | HUD overlay component classes |
+| `css/controls.css` | Control button component classes |
+| `css/settings.css` | Settings panel component classes |
+
+**Utility-first approach:** Elements are styled primarily with small, single-purpose classes (e.g. `flex`, `items-center`, `gap-1`, `glass`, `abs`, `inset-0`). Component classes (e.g. `.rec-dot`, `.settings-panel`) handle only what can't be expressed with utilities.
+
+**No ID selectors.** All CSS rules use class selectors only. IDs remain in HTML for `getElementById` refs in JS but are never targeted in CSS.
+
+**Design tokens** are CSS custom properties defined in `:root` in `base.css`:
+- Spacing: `--space-half` (4px) through `--space-4` (32px) on an 8 px grid
+- Colours: `--color-white`, `--color-red`, `--color-dim`
+- Glass effect: `--glass-bg`, `--glass-blur`, `--glass-border`
+- Safe-area helpers, z-index scale, border-radii
+
+**`.hidden` pattern:** JS adds/removes `.hidden` to show/hide elements. `.hidden { display: none !important }` is defined after all layout utilities in `base.css`, so it always wins in the cascade. Elements that display as `flex` carry the `.flex` class permanently; `.hidden` overrides it when present.
+
+
+
 ## Coding conventions
 
 - **No bundler or transpiler.** Do not introduce webpack, Rollup, Babel, or similar tools.
 - **ES modules.** All JS lives in `js/` as native ES modules. `js/main.js` is the entry point.
 - **No comments for obvious code.** Only add comments for non-obvious logic or constraints.
-- **CSS custom properties are not used.** Colours and values are inlined; keep that consistent.
+- **CSS custom properties throughout.** All spacing, colour, and radius values use tokens from `:root` in `css/base.css`. Do not inline raw values when a token exists.
+- **No ID selectors in CSS.** Use class selectors only.
 - **iOS Safari is the primary target.** Test camera, recording, and replay on Safari on iPhone.

@@ -6,6 +6,12 @@ A web app for recording your golf swing and instantly replaying it — first at 
 
 ---
 
+## What's new in v13
+
+- **CSS refactored** — monolithic `style.css` replaced with a `css/` directory of focused files (`base.css`, `video.css`, `hud.css`, `controls.css`, `settings.css`). Styles now use a Tailwind-like utility-first approach with CSS custom properties for spacing, colour, and radii.
+
+---
+
 ## What's new in v7
 
 - **Camera on/off button** — the 📷 button (bottom-right corner) now stops the camera feed entirely. Tap it again to turn the camera back on. Useful for saving battery between shots. Switching facing mode in Settings while the camera is off takes effect when you turn it back on.
@@ -105,8 +111,8 @@ nvm install
 [Biome](https://biomejs.dev) is used for linting and formatting.
 
 ```bash
-npm run lint    # lint js/**/*.js and style.css
-npm run format  # format js/**/*.js and style.css in place
+npm run lint    # lint js/**/*.js and css/**/*.css
+npm run format  # format js/**/*.js and css/**/*.css in place
 npm run check   # lint + format together (use before committing)
 ```
 
@@ -132,7 +138,11 @@ npx serve .
 | File | Description |
 |---|---|
 | `index.html` | HTML structure and asset references (versioned with `?v=N`) |
-| `style.css` | All styles |
+| `css/base.css` | Design tokens (CSS custom properties) and utility classes |
+| `css/video.css` | Video element styles |
+| `css/hud.css` | HUD overlay component classes (countdown, rec-dot, badges) |
+| `css/controls.css` | Control button component classes (face-ring, cam-off) |
+| `css/settings.css` | Settings panel component classes |
 | `js/main.js` | Entry point — bootstraps the app and imports all other modules |
 | `js/state.js` | Shared DOM refs, config (`cfg`), and mutable state object |
 | `js/camera.js` | Camera startup (`startCamera`) |
