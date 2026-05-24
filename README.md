@@ -2,38 +2,7 @@
 
 A web app for recording your golf swing and instantly replaying it — first at normal speed, then in slow motion.
 
-**Live app:** https://larsselstad.github.io/golfreplay/
-
----
-
-## What's new in v13
-
-- **CSS refactored** — monolithic `style.css` replaced with a `css/` directory of focused files (`base.css`, `video.css`, `hud.css`, `controls.css`, `settings.css`). Styles now use a Tailwind-like utility-first approach with CSS custom properties for spacing, colour, and radii.
-
----
-
-## What's new in v7
-
-- **Camera on/off button** — the 📷 button (bottom-right corner) now stops the camera feed entirely. Tap it again to turn the camera back on. Useful for saving battery between shots. Switching facing mode in Settings while the camera is off takes effect when you turn it back on.
-
----
-
-## What's new in v6
-
-- **Camera toggle button** — a 📷 button sits next to the 👁 face trigger in the bottom-right corner. Tap it to instantly switch between front and rear camera without opening Settings.
-
----
-
-## What's new in v5
-
-- **Face trigger stop** — when the face trigger is armed and recording is active, looking back at the camera after your swing (1 s dwell) stops recording automatically. The app waits until your face has turned away (during the swing) before the stop gesture becomes active, so it won't fire prematurely.
-
----
-
-## What's new in v4
-
-- **Removed** Bluetooth button detection (iOS Safari intercepts volume key events at the OS level — it never worked reliably on iPhone)
-- **Added** face trigger: tap the 👁 button to arm hands-free mode. Hold eye contact with the camera for 1.5 s and the countdown starts automatically. The mode stays active for the whole session — no need to re-arm between shots.
+**Live app:** <a href="https://larsselstad.github.io/golfreplay/" target="_blank">https://larsselstad.github.io/golfreplay/</a>
 
 ---
 
