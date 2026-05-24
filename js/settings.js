@@ -3,14 +3,15 @@ import { scheduleNextDetection, stopFaceDetection } from './face.js';
 import { cfg, saveCfg, state } from './state.js';
 
 const backdrop = document.getElementById('settings-backdrop');
-const doneBtn = document.getElementById('done-btn');
 const faceTriggerWrap = document.getElementById('face-trigger-wrap');
 const instruction = document.getElementById('instruction');
 const settingsBtn = document.getElementById('settings-btn');
+const settingsForm = document.getElementById('settings-form');
 const settingsPanel = document.getElementById('settings-panel');
 
 export function openSettings() {
   state.settingsOpen = true;
+  syncRadiosFromCfg();
   settingsPanel.classList.add('open');
   backdrop.classList.remove('hidden');
   stopFaceDetection();
@@ -28,14 +29,10 @@ export function closeSettings() {
     scheduleNextDetection();
 }
 
-// Applies a camera facing mode change: restarts stream, syncs pills, manages face-trigger state.
+// Applies a camera facing mode change: restarts stream, manages face-trigger state.
 // Only safe to call while idle.
 export async function applyCamera(facingMode) {
   cfg.camera = facingMode;
-  const grp = document.getElementById('grp-camera');
-  grp.querySelectorAll('.pill-btn').forEach((b) => {
-    b.classList.toggle('active', b.dataset.value === facingMode);
-  });
   if (!state.cameraEnabled) return; // camera intentionally off — don't restart
   await startCamera();
   if (cfg.camera === 'environment') {
@@ -60,36 +57,25 @@ settingsBtn.addEventListener('click', (e) => {
   openSettings();
 });
 backdrop.addEventListener('click', closeSettings);
-doneBtn.addEventListener('click', closeSettings);
 
-// Sync pill UI to match cfg on startup (handles values loaded from localStorage).
-function syncPillsFromCfg() {
+settingsForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const data = new FormData(settingsForm);
+  const newCamera = data.get('camera');
+  const cameraChanged = newCamera !== cfg.camera;
+  cfg.countdown = parseInt(data.get('countdown'), 10);
+  cfg.replays = parseInt(data.get('replays'), 10);
+  if (cameraChanged && state.appState === 'idle') await applyCamera(newCamera);
+  saveCfg();
+  closeSettings();
+});
+
+function syncRadiosFromCfg() {
   for (const key of ['camera', 'countdown', 'replays']) {
-    const grp = document.getElementById(`grp-${key}`);
     const val = String(cfg[key]);
-    grp.querySelectorAll('.pill-btn').forEach((b) => {
-      b.classList.toggle('active', b.dataset.value === val);
-    });
+    const radio = settingsForm.querySelector(
+      `input[name="${key}"][value="${val}"]`,
+    );
+    if (radio) radio.checked = true;
   }
 }
-syncPillsFromCfg();
-
-// Pill button groups — camera / countdown / replays
-['camera', 'countdown', 'replays'].forEach((key) => {
-  const grp = document.getElementById(`grp-${key}`);
-  grp.addEventListener('click', async (e) => {
-    const btn = e.target.closest('.pill-btn');
-    if (!btn) return;
-    grp.querySelectorAll('.pill-btn').forEach((b) => {
-      b.classList.remove('active');
-    });
-    btn.classList.add('active');
-    const raw = btn.dataset.value;
-    if (key === 'camera') {
-      if (state.appState === 'idle') await applyCamera(raw);
-    } else {
-      cfg[key] = parseInt(raw, 10);
-    }
-    saveCfg();
-  });
-});

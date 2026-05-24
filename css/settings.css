@@ -30,12 +30,8 @@
 }
 
 /* ── Panel internals ──────────────────────────────────────────────────────── */
-.drag-handle {
-  width: 40px;
-  height: 5px;
-  background: rgba(255, 255, 255, 0.25);
-  border-radius: 3px;
-  margin: 0 auto var(--space-2);
+.settings-panel fieldset {
+  border: none;
 }
 
 .panel-title {
@@ -58,32 +54,26 @@
   margin-bottom: var(--space-1);
 }
 
-.pill-group {
+.radio-group {
   display: flex;
-  gap: var(--space-1);
+  gap: var(--space-3);
+  flex-wrap: wrap;
 }
 
-.pill-btn {
-  flex: 1;
-  padding: var(--space-1);
-  background: rgba(255, 255, 255, 0.08);
-  border: 2px solid transparent;
-  border-radius: var(--radius-sm);
-  color: var(--color-dim);
-  font-size: 14px;
+.radio-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: 15px;
   font-weight: 600;
-  cursor: pointer;
-  text-align: center;
-  -webkit-tap-highlight-color: transparent;
-  transition:
-    background 0.15s,
-    border-color 0.15s,
-    color 0.15s;
-}
-.pill-btn.active {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: rgba(255, 255, 255, 0.55);
   color: var(--color-white);
+  cursor: pointer;
+}
+
+.radio-label input[type="radio"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
 }
 
 .done-btn {

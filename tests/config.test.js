@@ -9,60 +9,60 @@ test.beforeEach(async ({ page }) => {
   await page.click('#settings-btn');
 });
 
-test('default active pills are 5s countdown, 1 replay, Front camera', async ({
+test('default checked radios are 5s countdown, 1 replay, Front camera', async ({
   page,
 }) => {
-  await expect(page.locator('#grp-countdown .pill-btn.active')).toHaveText(
-    '5 s',
-  );
-  await expect(page.locator('#grp-replays .pill-btn.active')).toHaveText('1');
-  await expect(page.locator('#grp-camera .pill-btn.active')).toHaveText(
-    'Front',
-  );
+  await expect(
+    page.locator('input[name="countdown"][value="5"]'),
+  ).toBeChecked();
+  await expect(
+    page.locator('input[name="replays"][value="1"]'),
+  ).toBeChecked();
+  await expect(
+    page.locator('input[name="camera"][value="user"]'),
+  ).toBeChecked();
 });
 
-test('clicking 3s makes it active and deactivates 5s', async ({ page }) => {
-  await page.locator('#grp-countdown .pill-btn[data-value="3"]').click();
+test('selecting 3s makes it checked and deselects 5s', async ({ page }) => {
+  await page.locator('input[name="countdown"][value="3"]').check();
   await expect(
-    page.locator('#grp-countdown .pill-btn[data-value="3"]'),
-  ).toHaveClass(/active/);
+    page.locator('input[name="countdown"][value="3"]'),
+  ).toBeChecked();
   await expect(
-    page.locator('#grp-countdown .pill-btn[data-value="5"]'),
-  ).not.toHaveClass(/active/);
+    page.locator('input[name="countdown"][value="5"]'),
+  ).not.toBeChecked();
 });
 
-test('clicking 2 replays makes it active and deactivates 1', async ({
+test('selecting 2 replays makes it checked and deselects 1', async ({
   page,
 }) => {
-  await page.locator('#grp-replays .pill-btn[data-value="2"]').click();
+  await page.locator('input[name="replays"][value="2"]').check();
+  await expect(page.locator('input[name="replays"][value="2"]')).toBeChecked();
   await expect(
-    page.locator('#grp-replays .pill-btn[data-value="2"]'),
-  ).toHaveClass(/active/);
-  await expect(
-    page.locator('#grp-replays .pill-btn[data-value="1"]'),
-  ).not.toHaveClass(/active/);
+    page.locator('input[name="replays"][value="1"]'),
+  ).not.toBeChecked();
 });
 
 test('countdown selection persists across page reload', async ({ page }) => {
-  await page.locator('#grp-countdown .pill-btn[data-value="3"]').click();
+  await page.locator('input[name="countdown"][value="3"]').check();
+  await page.click('#done-btn');
   await page.reload();
   await page.waitForFunction(
     () => document.getElementById('version-badge')?.textContent !== '',
   );
   await page.click('#settings-btn');
   await expect(
-    page.locator('#grp-countdown .pill-btn[data-value="3"]'),
-  ).toHaveClass(/active/);
+    page.locator('input[name="countdown"][value="3"]'),
+  ).toBeChecked();
 });
 
 test('replays selection persists across page reload', async ({ page }) => {
-  await page.locator('#grp-replays .pill-btn[data-value="2"]').click();
+  await page.locator('input[name="replays"][value="2"]').check();
+  await page.click('#done-btn');
   await page.reload();
   await page.waitForFunction(
     () => document.getElementById('version-badge')?.textContent !== '',
   );
   await page.click('#settings-btn');
-  await expect(
-    page.locator('#grp-replays .pill-btn[data-value="2"]'),
-  ).toHaveClass(/active/);
+  await expect(page.locator('input[name="replays"][value="2"]')).toBeChecked();
 });
