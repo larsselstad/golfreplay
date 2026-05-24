@@ -1,0 +1,26 @@
+{
+  "name": "golfreplay",
+  "version": "1.0.0",
+  "description": "A web app for recording your golf swing and instantly replaying it — first at normal speed, then in slow motion.",
+  "main": "app.js",
+  "scripts": {
+    "lint": "biome lint app.js style.css",
+    "format": "biome format --write app.js style.css",
+    "check": "biome check --write app.js style.css"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/larsselstad/golfreplay.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/larsselstad/golfreplay/issues"
+  },
+  "homepage": "https://github.com/larsselstad/golfreplay#readme",
+  "devDependencies": {
+    "@biomejs/biome": "2.4.15"
+  }
+}

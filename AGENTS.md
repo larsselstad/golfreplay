@@ -11,10 +11,12 @@ Golf Replay is a single-page web app (plain HTML + CSS + JS, no build tool) that
 | `index.html` | All markup, including the HUD, settings panel, and overlay elements |
 | `style.css` | All styles |
 | `app.js` | All application logic — one IIFE, no modules or bundler |
+| `package.json` | npm scripts for linting and formatting (Biome) |
+| `biome.json` | Biome configuration |
 
 There is no build step. Editing the three source files and pushing to `main` is all that is required to deploy.
 
-## Current version: `v8`
+## Current version: `v9`
 
 ### Version number — what it is and where to update it
 
@@ -86,9 +88,21 @@ To add a new built-in trigger key, add it to the `TRIGGER_KEYS` set declaration 
 
 Users can teach the app a new key via **Settings → Bluetooth Button → Detect button press**. The app opens a full-screen overlay, listens for the next `keydown` in capture phase, saves the detected key to `localStorage`, and registers it in `TRIGGER_KEYS`. The saved key survives page reloads.
 
+## Tooling
+
+[Biome](https://biomejs.dev) is used for linting and formatting. There is no bundler or transpiler — the plain-file deployment model is unchanged.
+
+```bash
+npm run lint    # lint app.js and style.css
+npm run format  # format app.js and style.css in place
+npm run check   # lint + format together (use before committing)
+```
+
+Run `npm run check` before committing to keep the code consistently formatted and lint-free.
+
 ## Coding conventions
 
-- **No build tool.** Do not introduce npm scripts, bundlers, or transpilers unless absolutely necessary.
+- **No bundler or transpiler.** Do not introduce webpack, Rollup, Babel, or similar tools.
 - **Single IIFE.** All JS lives inside the immediately-invoked function expression in `app.js`. No ES modules.
 - **No comments for obvious code.** Only add comments for non-obvious logic or constraints.
 - **CSS custom properties are not used.** Colours and values are inlined; keep that consistent.

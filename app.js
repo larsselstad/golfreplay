@@ -1,52 +1,55 @@
-(function () {
+(() => {
   'use strict';
 
   // ── DOM refs ───────────────────────────────────────────────────────────────
-  const previewVid      = document.getElementById('preview');
-  const replayVid       = document.getElementById('replay');
-  const statusBadge     = document.getElementById('status-badge');
-  const recIndicator    = document.getElementById('rec-indicator');
-  const recTimeEl       = document.getElementById('rec-time');
-  const countdownEl     = document.getElementById('countdown');
-  const replayInfo      = document.getElementById('replay-info');
-  const speedBadge      = document.getElementById('speed-badge');
-  const cycleCounter    = document.getElementById('cycle-counter');
-  const instruction     = document.getElementById('instruction');
-  const errorBanner     = document.getElementById('error-banner');
-  const settingsBtn     = document.getElementById('settings-btn');
-  const settingsPanel   = document.getElementById('settings-panel');
-  const backdrop        = document.getElementById('settings-backdrop');
-  const doneBtn         = document.getElementById('done-btn');
-  const versionBadge    = document.getElementById('version-badge');
+  const previewVid = document.getElementById('preview');
+  const replayVid = document.getElementById('replay');
+  const statusBadge = document.getElementById('status-badge');
+  const recIndicator = document.getElementById('rec-indicator');
+  const recTimeEl = document.getElementById('rec-time');
+  const countdownEl = document.getElementById('countdown');
+  const replayInfo = document.getElementById('replay-info');
+  const speedBadge = document.getElementById('speed-badge');
+  const cycleCounter = document.getElementById('cycle-counter');
+  const instruction = document.getElementById('instruction');
+  const errorBanner = document.getElementById('error-banner');
+  const settingsBtn = document.getElementById('settings-btn');
+  const settingsPanel = document.getElementById('settings-panel');
+  const backdrop = document.getElementById('settings-backdrop');
+  const doneBtn = document.getElementById('done-btn');
+  const versionBadge = document.getElementById('version-badge');
   const faceTriggerWrap = document.getElementById('face-trigger-wrap');
-  const faceTriggerBtn  = document.getElementById('face-trigger-btn');
-  const camToggleBtn    = document.getElementById('cam-toggle-btn');
+  const faceTriggerBtn = document.getElementById('face-trigger-btn');
+  const camToggleBtn = document.getElementById('cam-toggle-btn');
 
   // ── Version ────────────────────────────────────────────────────────────────
-  const APP_VERSION = 'v8';
+  const APP_VERSION = 'v9';
 
   // ── Config (mirrors the settings UI defaults) ──────────────────────────────
   const cfg = { camera: 'user', countdown: 5, replays: 1 };
 
   // ── App state ──────────────────────────────────────────────────────────────
-  let appState      = 'idle';   // idle | countdown | recording | replay
+  let appState = 'idle'; // idle | countdown | recording | replay
   let cameraEnabled = true;
-  let stream        = null;
-  let recorder      = null;
-  let chunks        = [];
-  let replayUrl     = null;
-  let cdTimer       = null;
-  let cdValue       = 0;
-  let recTimer      = null;
-  let recSecs       = 0;
-  let replayCycle   = 0;
-  let replayIter    = 0;
-  let cdGoTimeout   = null;
-  let settingsOpen  = false;
+  let stream = null;
+  let recorder = null;
+  let chunks = [];
+  let replayUrl = null;
+  let cdTimer = null;
+  let cdValue = 0;
+  let recTimer = null;
+  let recSecs = 0;
+  let replayCycle = 0;
+  let replayIter = 0;
+  let cdGoTimeout = null;
+  let settingsOpen = false;
 
   // ── Camera ─────────────────────────────────────────────────────────────────
   async function startCamera() {
-    if (stream) stream.getTracks().forEach(t => t.stop());
+    if (stream)
+      stream.getTracks().forEach((t) => {
+        t.stop();
+      });
     try {
       stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: cfg.camera },
@@ -55,7 +58,9 @@
       previewVid.srcObject = stream;
       hideError();
     } catch {
-      showError('Camera access denied.\nPlease allow camera access and reload the page.');
+      showError(
+        'Camera access denied.\nPlease allow camera access and reload the page.',
+      );
     }
   }
 
@@ -68,31 +73,57 @@
       'video/webm;codecs=vp8',
       'video/webm',
     ];
-    return candidates.find(t => {
-      try { return MediaRecorder.isTypeSupported(t); } catch { return false; }
-    }) ?? '';
+    return (
+      candidates.find((t) => {
+        try {
+          return MediaRecorder.isTypeSupported(t);
+        } catch {
+          return false;
+        }
+      }) ?? ''
+    );
   }
 
   // ── Input handling ─────────────────────────────────────────────────────────
-  const TRIGGER_KEYS = new Set([' ', 'Enter', 'ArrowRight', 'ArrowLeft', 'ArrowUp', 'ArrowDown', 'AudioVolumeUp', 'AudioVolumeDown']);
+  const TRIGGER_KEYS = new Set([
+    ' ',
+    'Enter',
+    'ArrowRight',
+    'ArrowLeft',
+    'ArrowUp',
+    'ArrowDown',
+    'AudioVolumeUp',
+    'AudioVolumeDown',
+  ]);
 
-  document.addEventListener('keydown', e => {
+  document.addEventListener('keydown', (e) => {
     if (e.repeat) return;
-    if (TRIGGER_KEYS.has(e.key)) { e.preventDefault(); onTrigger(); }
+    if (TRIGGER_KEYS.has(e.key)) {
+      e.preventDefault();
+      onTrigger();
+    }
   });
 
   // Tap anywhere that is NOT a settings or bottom-right-controls element
-  document.addEventListener('pointerdown', e => {
-    if (e.target.closest('#settings-panel, #settings-btn, #settings-backdrop, #hud-bottom-right')) return;
+  document.addEventListener('pointerdown', (e) => {
+    if (
+      e.target.closest(
+        '#settings-panel, #settings-btn, #settings-backdrop, #hud-bottom-right',
+      )
+    )
+      return;
     onTrigger();
   });
 
   function onTrigger() {
-    if (settingsOpen)          { closeSettings(); return; }
-    if      (appState === 'idle')       startCountdown();
-    else if (appState === 'countdown')  cancelCountdown();
-    else if (appState === 'recording')  stopRecording();
-    else if (appState === 'replay')     endReplay();
+    if (settingsOpen) {
+      closeSettings();
+      return;
+    }
+    if (appState === 'idle') startCountdown();
+    else if (appState === 'countdown') cancelCountdown();
+    else if (appState === 'recording') stopRecording();
+    else if (appState === 'replay') endReplay();
   }
 
   // ── Countdown ──────────────────────────────────────────────────────────────
@@ -104,7 +135,8 @@
     cdTimer = setInterval(() => {
       cdValue--;
       if (cdValue <= 0) {
-        clearInterval(cdTimer); cdTimer = null;
+        clearInterval(cdTimer);
+        cdTimer = null;
         showCd('GO!');
         startRecording();
       } else {
@@ -114,13 +146,19 @@
   }
 
   function cancelCountdown() {
-    if (cdTimer) { clearInterval(cdTimer); cdTimer = null; }
+    if (cdTimer) {
+      clearInterval(cdTimer);
+      cdTimer = null;
+    }
     showCd(null);
     setState('idle');
   }
 
   function showCd(n) {
-    if (cdGoTimeout !== null) { clearTimeout(cdGoTimeout); cdGoTimeout = null; }
+    if (cdGoTimeout !== null) {
+      clearTimeout(cdGoTimeout);
+      cdGoTimeout = null;
+    }
     if (n === null) {
       countdownEl.classList.add('hidden');
       countdownEl.classList.remove('cd-go', 'animating');
@@ -133,7 +171,10 @@
       countdownEl.classList.remove('hidden');
       countdownEl.classList.add('animating');
       if (n === 'GO!') {
-        cdGoTimeout = setTimeout(() => { cdGoTimeout = null; showCd(null); }, 600);
+        cdGoTimeout = setTimeout(() => {
+          cdGoTimeout = null;
+          showCd(null);
+        }, 600);
       }
     }
   }
@@ -141,7 +182,9 @@
   // ── Recording ──────────────────────────────────────────────────────────────
   function startRecording() {
     if (!window.MediaRecorder) {
-      showError('Recording is not supported in this browser.\nPlease use iOS 14.5+ Safari or a modern desktop browser.');
+      showError(
+        'Recording is not supported in this browser.\nPlease use iOS 14.5+ Safari or a modern desktop browser.',
+      );
       setState('idle');
       return;
     }
@@ -155,9 +198,14 @@
       recorder = new MediaRecorder(stream);
     }
 
-    recorder.ondataavailable = e => { if (e.data?.size > 0) chunks.push(e.data); };
+    recorder.ondataavailable = (e) => {
+      if (e.data?.size > 0) chunks.push(e.data);
+    };
     recorder.onerror = () => {
-      if (recTimer) { clearInterval(recTimer); recTimer = null; }
+      if (recTimer) {
+        clearInterval(recTimer);
+        recTimer = null;
+      }
       showError('Recording failed. Please try again.');
       setState('idle');
     };
@@ -170,11 +218,17 @@
     recorder.start(100); // collect data in 100 ms chunks for reliability on iOS
     recSecs = 0;
     updateRecTime();
-    recTimer = setInterval(() => { recSecs++; updateRecTime(); }, 1000);
+    recTimer = setInterval(() => {
+      recSecs++;
+      updateRecTime();
+    }, 1000);
   }
 
   function stopRecording() {
-    if (recTimer) { clearInterval(recTimer); recTimer = null; }
+    if (recTimer) {
+      clearInterval(recTimer);
+      recTimer = null;
+    }
     if (recorder?.state !== 'inactive') recorder.stop();
   }
 
@@ -187,7 +241,7 @@
   // ── Replay ─────────────────────────────────────────────────────────────────
   function startReplay() {
     setState('replay');
-    replayIter  = 0;
+    replayIter = 0;
     replayCycle = 0;
     previewVid.classList.add('hidden');
     replayVid.classList.remove('hidden');
@@ -196,9 +250,10 @@
   }
 
   function playSegment() {
-    replayVid.currentTime  = 0;
+    replayVid.currentTime = 0;
     replayVid.playbackRate = replayCycle === 0 ? 1.0 : 0.5;
-    speedBadge.textContent = replayCycle === 0 ? '▶ Normal Speed' : '▶ Slow Motion';
+    speedBadge.textContent =
+      replayCycle === 0 ? '▶ Normal Speed' : '▶ Slow Motion';
 
     if (cfg.replays > 1) {
       cycleCounter.textContent = `Replay ${replayIter + 1} of ${cfg.replays}`;
@@ -232,7 +287,10 @@
     replayVid.pause();
     replayVid.removeAttribute('src');
     replayVid.load(); // reset element state
-    if (replayUrl) { URL.revokeObjectURL(replayUrl); replayUrl = null; }
+    if (replayUrl) {
+      URL.revokeObjectURL(replayUrl);
+      replayUrl = null;
+    }
     replayVid.classList.add('hidden');
     previewVid.classList.remove('hidden');
     setState('idle');
@@ -241,7 +299,10 @@
   // ── UI state ───────────────────────────────────────────────────────────────
   function setState(s) {
     appState = s;
-    if (cdGoTimeout !== null) { clearTimeout(cdGoTimeout); cdGoTimeout = null; }
+    if (cdGoTimeout !== null) {
+      clearTimeout(cdGoTimeout);
+      cdGoTimeout = null;
+    }
 
     // Reset all HUD elements to hidden/default
     statusBadge.classList.remove('hidden');
@@ -257,9 +318,10 @@
     switch (s) {
       case 'idle':
         statusBadge.textContent = 'Ready';
-        instruction.textContent = (faceTriggerActive && cfg.camera === 'user')
-          ? 'Look at camera to start'
-          : 'Tap anywhere or press button to start';
+        instruction.textContent =
+          faceTriggerActive && cfg.camera === 'user'
+            ? 'Look at camera to start'
+            : 'Tap anywhere or press button to start';
         camToggleBtn.classList.remove('hidden');
         if (cfg.camera === 'user') {
           faceTriggerWrap.classList.remove('hidden');
@@ -275,9 +337,10 @@
       case 'recording':
         statusBadge.classList.add('hidden');
         recIndicator.classList.remove('hidden');
-        instruction.textContent = (faceTriggerActive && cfg.camera === 'user')
-          ? 'Look at camera to stop'
-          : 'Press to stop recording';
+        instruction.textContent =
+          faceTriggerActive && cfg.camera === 'user'
+            ? 'Look at camera to stop'
+            : 'Press to stop recording';
         settingsBtn.classList.add('hidden');
         if (faceTriggerActive && cfg.camera === 'user') {
           faceRecGone = false;
@@ -302,7 +365,9 @@
     errorBanner.classList.remove('hidden');
     instruction.classList.add('hidden');
   }
-  function hideError() { errorBanner.classList.add('hidden'); }
+  function hideError() {
+    errorBanner.classList.add('hidden');
+  }
 
   // ── Settings panel ─────────────────────────────────────────────────────────
   function openSettings() {
@@ -315,10 +380,14 @@
     settingsOpen = false;
     settingsPanel.classList.remove('open');
     backdrop.classList.add('hidden');
-    if (faceTriggerActive && appState === 'idle' && cfg.camera === 'user') scheduleNextDetection();
+    if (faceTriggerActive && appState === 'idle' && cfg.camera === 'user')
+      scheduleNextDetection();
   }
 
-  settingsBtn.addEventListener('click', e => { e.stopPropagation(); openSettings(); });
+  settingsBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    openSettings();
+  });
   backdrop.addEventListener('click', closeSettings);
   doneBtn.addEventListener('click', closeSettings);
 
@@ -327,7 +396,9 @@
   async function applyCamera(facingMode) {
     cfg.camera = facingMode;
     const grp = document.getElementById('grp-camera');
-    grp.querySelectorAll('.pill-btn').forEach(b => b.classList.toggle('active', b.dataset.value === facingMode));
+    grp.querySelectorAll('.pill-btn').forEach((b) => {
+      b.classList.toggle('active', b.dataset.value === facingMode);
+    });
     if (!cameraEnabled) return; // camera intentionally off — don't restart
     await startCamera();
     if (cfg.camera === 'environment') {
@@ -340,7 +411,9 @@
       instruction.textContent = 'Tap anywhere or press button to start';
     } else {
       faceTriggerWrap.classList.remove('hidden');
-      instruction.textContent = faceTriggerActive ? 'Look at camera to start' : 'Tap anywhere or press button to start';
+      instruction.textContent = faceTriggerActive
+        ? 'Look at camera to start'
+        : 'Tap anywhere or press button to start';
       if (faceTriggerActive) scheduleNextDetection();
     }
   }
@@ -349,7 +422,12 @@
     if (appState !== 'idle') return;
     if (cameraEnabled) {
       cameraEnabled = false;
-      if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+      if (stream) {
+        stream.getTracks().forEach((t) => {
+          t.stop();
+        });
+        stream = null;
+      }
       previewVid.srcObject = null;
       camToggleBtn.classList.add('cam-off');
       if (faceTriggerActive) {
@@ -365,7 +443,9 @@
       await startCamera();
       if (cfg.camera === 'user') {
         faceTriggerWrap.classList.remove('hidden');
-        instruction.textContent = faceTriggerActive ? 'Look at camera to start' : 'Tap anywhere or press button to start';
+        instruction.textContent = faceTriggerActive
+          ? 'Look at camera to start'
+          : 'Tap anywhere or press button to start';
         if (faceTriggerActive) scheduleNextDetection();
       } else {
         instruction.textContent = 'Tap anywhere or press button to start';
@@ -374,12 +454,14 @@
   }
 
   // Pill button groups — camera / countdown / replays
-  ['camera', 'countdown', 'replays'].forEach(key => {
+  ['camera', 'countdown', 'replays'].forEach((key) => {
     const grp = document.getElementById(`grp-${key}`);
-    grp.addEventListener('click', async e => {
+    grp.addEventListener('click', async (e) => {
       const btn = e.target.closest('.pill-btn');
       if (!btn) return;
-      grp.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('active'));
+      grp.querySelectorAll('.pill-btn').forEach((b) => {
+        b.classList.remove('active');
+      });
       btn.classList.add('active');
       const raw = btn.dataset.value;
       if (key === 'camera') {
@@ -390,33 +472,37 @@
     });
   });
 
-  camToggleBtn.addEventListener('click', e => {
+  camToggleBtn.addEventListener('click', (e) => {
     e.stopPropagation();
     toggleCameraFeed();
   });
 
   // ── Face trigger ───────────────────────────────────────────────────────────
-  let faceTriggerActive  = false;
-  let faceModelsLoaded   = false;
-  let faceModelsLoading  = false;
-  let faceModelsError    = false;
-  let faceDetectTimer    = null;
-  let faceDwellStart     = null;
+  let faceTriggerActive = false;
+  let faceModelsLoaded = false;
+  let faceModelsLoading = false;
+  let faceModelsError = false;
+  let faceDetectTimer = null;
+  let faceDwellStart = null;
   let faceLastDetectTime = null;
-  let faceRecGone        = false; // true once face has left frame during recording
+  let faceRecGone = false; // true once face has left frame during recording
 
-  const FACE_DWELL_MS        = 1500;
-  const FACE_STOP_DWELL_MS   = 1000;
+  const FACE_DWELL_MS = 1500;
+  const FACE_STOP_DWELL_MS = 1000;
   const FACE_DETECT_INTERVAL = 500;
 
   const faceCanvas = document.createElement('canvas');
-  const faceCtx    = faceCanvas.getContext('2d');
+  const faceCtx = faceCanvas.getContext('2d');
 
   function loadFaceApiScript() {
     return new Promise((resolve, reject) => {
-      if (window.faceapi) { resolve(); return; }
+      if (window.faceapi) {
+        resolve();
+        return;
+      }
       const s = document.createElement('script');
-      s.src = 'https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js';
+      s.src =
+        'https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js';
       s.onload = resolve;
       s.onerror = reject;
       document.head.appendChild(s);
@@ -429,20 +515,26 @@
     faceTriggerBtn.classList.add('ft-loading');
     try {
       await loadFaceApiScript();
-      const MODEL_URL = 'https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights/';
+      const MODEL_URL =
+        'https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights/';
       await Promise.all([
         faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
         faceapi.nets.faceLandmark68TinyNet.loadFromUri(MODEL_URL),
       ]);
       faceModelsLoaded = true;
-      faceModelsError  = false;
+      faceModelsError = false;
     } catch {
       faceModelsError = true;
       faceTriggerBtn.textContent = '⚠';
     }
     faceModelsLoading = false;
     faceTriggerBtn.classList.remove('ft-loading');
-    if (faceModelsLoaded && faceTriggerActive && appState === 'idle' && !settingsOpen) {
+    if (
+      faceModelsLoaded &&
+      faceTriggerActive &&
+      appState === 'idle' &&
+      !settingsOpen
+    ) {
       scheduleNextDetection();
     }
   }
@@ -450,7 +542,8 @@
   function scheduleNextDetection() {
     clearTimeout(faceDetectTimer);
     faceDetectTimer = null;
-    if (!faceModelsLoaded || !faceTriggerActive || cfg.camera !== 'user') return;
+    if (!faceModelsLoaded || !faceTriggerActive || cfg.camera !== 'user')
+      return;
     if (appState !== 'idle' && appState !== 'recording') return;
     if (settingsOpen) return;
     faceDetectTimer = setTimeout(runFaceDetection, FACE_DETECT_INTERVAL);
@@ -458,31 +551,47 @@
 
   function stopFaceDetection() {
     clearTimeout(faceDetectTimer);
-    faceDetectTimer    = null;
-    faceDwellStart     = null;
+    faceDetectTimer = null;
+    faceDwellStart = null;
     faceLastDetectTime = null;
-    faceRecGone        = false;
+    faceRecGone = false;
     if (faceTriggerWrap) updateDwellRing(0);
   }
 
   async function runFaceDetection() {
     faceDetectTimer = null;
     const inActiveState = appState === 'idle' || appState === 'recording';
-    if (!faceModelsLoaded || !faceTriggerActive || cfg.camera !== 'user' || !inActiveState || settingsOpen) return;
-    if (!faceCtx || !previewVid.videoWidth) { scheduleNextDetection(); return; }
+    if (
+      !faceModelsLoaded ||
+      !faceTriggerActive ||
+      cfg.camera !== 'user' ||
+      !inActiveState ||
+      settingsOpen
+    )
+      return;
+    if (!faceCtx || !previewVid.videoWidth) {
+      scheduleNextDetection();
+      return;
+    }
 
     // Downscale to max 320px on the longest dimension for performance
-    const scale = Math.min(1, 320 / Math.max(previewVid.videoWidth, previewVid.videoHeight));
-    const w = Math.round(previewVid.videoWidth  * scale);
+    const scale = Math.min(
+      1,
+      320 / Math.max(previewVid.videoWidth, previewVid.videoHeight),
+    );
+    const w = Math.round(previewVid.videoWidth * scale);
     const h = Math.round(previewVid.videoHeight * scale);
-    if (faceCanvas.width !== w)  faceCanvas.width  = w;
+    if (faceCanvas.width !== w) faceCanvas.width = w;
     if (faceCanvas.height !== h) faceCanvas.height = h;
     faceCtx.drawImage(previewVid, 0, 0, w, h);
 
     let detections;
     try {
       detections = await faceapi
-        .detectAllFaces(faceCanvas, new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.5 }))
+        .detectAllFaces(
+          faceCanvas,
+          new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.5 }),
+        )
         .withFaceLandmarks(true);
     } catch {
       scheduleNextDetection();
@@ -491,23 +600,35 @@
 
     // Guard: state may have changed during async inference
     const inActiveStatePost = appState === 'idle' || appState === 'recording';
-    if (!faceTriggerActive || cfg.camera !== 'user' || !inActiveStatePost || settingsOpen) return;
+    if (
+      !faceTriggerActive ||
+      cfg.camera !== 'user' ||
+      !inActiveStatePost ||
+      settingsOpen
+    )
+      return;
 
     // Use only the largest detected face to avoid triggering on bystanders
     const largest = detections.reduce(
-      (best, d) => (!best || d.detection.box.area > best.detection.box.area) ? d : best, null
+      (best, d) =>
+        !best || d.detection.box.area > best.detection.box.area ? d : best,
+      null,
     );
 
     const looking = largest ? isFrontalFace(largest, w) : false;
     const now = Date.now();
 
     // Reset dwell if there was a long gap (page was throttled or backgrounded)
-    if (faceLastDetectTime && now - faceLastDetectTime > FACE_DETECT_INTERVAL * 3) {
+    if (
+      faceLastDetectTime &&
+      now - faceLastDetectTime > FACE_DETECT_INTERVAL * 3
+    ) {
       faceDwellStart = null;
     }
     faceLastDetectTime = now;
 
-    const dwellMs = appState === 'recording' ? FACE_STOP_DWELL_MS : FACE_DWELL_MS;
+    const dwellMs =
+      appState === 'recording' ? FACE_STOP_DWELL_MS : FACE_DWELL_MS;
 
     if (looking) {
       if (appState === 'recording' && !faceRecGone) {
@@ -516,7 +637,8 @@
       } else {
         if (!faceDwellStart) faceDwellStart = now;
         const elapsed = now - faceDwellStart;
-        if (appState === 'idle') updateDwellRing(Math.min(elapsed / dwellMs, 1));
+        if (appState === 'idle')
+          updateDwellRing(Math.min(elapsed / dwellMs, 1));
         if (elapsed >= dwellMs) {
           stopFaceDetection();
           if (appState === 'idle') startCountdown();
@@ -538,17 +660,24 @@
     if (box.width < canvasWidth * 0.08) return false;
 
     const pts = detection.landmarks.positions;
-    const leftEyeX  = (pts[36].x + pts[37].x + pts[38].x + pts[39].x + pts[40].x + pts[41].x) / 6;
-    const rightEyeX = (pts[42].x + pts[43].x + pts[44].x + pts[45].x + pts[46].x + pts[47].x) / 6;
-    const noseTipX  = pts[30].x;
-    const eyeMidX   = (leftEyeX + rightEyeX) / 2;
-    const eyeSpan   = Math.abs(rightEyeX - leftEyeX);
+    const leftEyeX =
+      (pts[36].x + pts[37].x + pts[38].x + pts[39].x + pts[40].x + pts[41].x) /
+      6;
+    const rightEyeX =
+      (pts[42].x + pts[43].x + pts[44].x + pts[45].x + pts[46].x + pts[47].x) /
+      6;
+    const noseTipX = pts[30].x;
+    const eyeMidX = (leftEyeX + rightEyeX) / 2;
+    const eyeSpan = Math.abs(rightEyeX - leftEyeX);
     if (eyeSpan < 1) return false;
-    return Math.abs(noseTipX - eyeMidX) / eyeSpan < 0.20;
+    return Math.abs(noseTipX - eyeMidX) / eyeSpan < 0.2;
   }
 
   function updateDwellRing(progress) {
-    faceTriggerWrap.style.setProperty('--dwell', `${Math.round(progress * 100)}%`);
+    faceTriggerWrap.style.setProperty(
+      '--dwell',
+      `${Math.round(progress * 100)}%`,
+    );
   }
 
   async function toggleFaceTrigger() {
@@ -576,13 +705,16 @@
 
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
-      faceDwellStart     = null;
+      faceDwellStart = null;
       faceLastDetectTime = null;
       updateDwellRing(0);
     }
   });
 
-  faceTriggerBtn.addEventListener('click', e => { e.stopPropagation(); toggleFaceTrigger(); });
+  faceTriggerBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleFaceTrigger();
+  });
 
   // ── Bootstrap ──────────────────────────────────────────────────────────────
   versionBadge.textContent = APP_VERSION;

@@ -100,6 +100,18 @@ nvm install
 
 ---
 
+## Code quality
+
+[Biome](https://biomejs.dev) is used for linting and formatting.
+
+```bash
+npm run lint    # lint app.js and style.css
+npm run format  # format app.js and style.css in place
+npm run check   # lint + format together (recommended before committing)
+```
+
+---
+
 ## Running locally on Mac
 
 1. Make sure [Node.js](https://nodejs.org) is installed (see above for the pinned version)
@@ -122,4 +134,6 @@ npx serve .
 | `index.html` | HTML structure and asset references (versioned with `?v=N`) |
 | `style.css` | All styles |
 | `app.js` | All app logic |
+| `package.json` | npm scripts for linting and formatting |
+| `biome.json` | Biome configuration |
 | `AGENTS.md` | Project conventions for AI agents and contributors |
