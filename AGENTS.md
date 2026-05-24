@@ -10,13 +10,22 @@ Golf Replay is a single-page web app (plain HTML + CSS + JS, no build tool) that
 |---|---|
 | `index.html` | All markup, including the HUD, settings panel, and overlay elements |
 | `style.css` | All styles |
-| `app.js` | All application logic — one IIFE, no modules or bundler |
+| `js/main.js` | Entry point — bootstraps app (version badge, `setState('idle')`, `startCamera()`) and imports all modules |
+| `js/state.js` | Shared DOM refs, `cfg`, `APP_VERSION`, and `state` object (all mutable state) |
+| `js/camera.js` | `startCamera` |
+| `js/ui.js` | `setState`, `showError`, `hideError` |
+| `js/countdown.js` | Countdown logic |
+| `js/recording.js` | MediaRecorder recording logic |
+| `js/replay.js` | Replay playback logic |
+| `js/settings.js` | Settings panel, camera toggle, pill button wiring |
+| `js/face.js` | Face-trigger detection (face-api.js) |
+| `js/input.js` | Keyboard and pointer event handling |
 | `package.json` | npm scripts for linting and formatting (Biome) |
 | `biome.json` | Biome configuration |
 
-There is no build step. Editing the three source files and pushing to `main` is all that is required to deploy.
+There is no build step. Modules are loaded as native ES modules via `<script type="module">`. Editing source files and pushing to `main` is all that is required to deploy.
 
-## Current version: `v9`
+## Current version: `v12`
 
 ### Version number — what it is and where to update it
 
@@ -25,24 +34,26 @@ The version number is a simple string (e.g. `v2`, `v3`) used to bust the browser
 | Location | What to change |
 |---|---|
 | `index.html` line with `style.css` | `href="style.css?v=N"` → increment `N` |
-| `index.html` line with `app.js` | `src="app.js?v=N"` → increment `N` |
-| `app.js` near the top of the IIFE | `const APP_VERSION = 'vN';` → increment `N` |
+| `index.html` line with `main.js` | `src="js/main.js?v=N"` → increment `N` |
+| `js/state.js` near the top | `const APP_VERSION = 'vN';` → increment `N` |
 
-The version badge is displayed in the bottom-left corner of the app at runtime. This lets users (and developers) verify that the latest deployment is actually running in their browser.
+The version badge is displayed in the bottom-left corner of the app at runtime.
 
-**Rule: increment the version whenever any of the three source files change.**
+> **Note on module caching:** Only `main.js` (the entry point) is cache-busted via the query string. Module-to-module imports (e.g. `import './camera.js'`) rely on the browser's ETag/`Last-Modified` revalidation, which is sufficient for this project. A build tool with content-hashed filenames would be required for true per-module cache busting.
 
-Example — bumping from `v2` to `v3`:
+**Rule: increment the version whenever any source file changes.**
+
+Example — bumping from `v11` to `v12`:
 
 ```html
 <!-- index.html -->
-<link rel="stylesheet" href="style.css?v=3">
-<script src="app.js?v=3"></script>
+<link rel="stylesheet" href="style.css?v=12">
+<script type="module" src="js/main.js?v=12"></script>
 ```
 
 ```js
-// app.js
-const APP_VERSION = 'v3';
+// js/state.js
+export const APP_VERSION = 'v12';
 ```
 
 ## App states
@@ -56,7 +67,7 @@ The app cycles through four states managed by `appState`:
 | `recording` | MediaRecorder active, timer running |
 | `replay` | Recorded clip playing back (normal speed then slow motion) |
 
-Any trigger (screen tap, keyboard key, or Bluetooth button key) advances the state machine via `onTrigger()`.
+Any trigger (screen tap, keyboard key, or remote button key) advances the state machine via `onTrigger()`.
 
 ## HUD buttons
 
@@ -80,13 +91,12 @@ The `faceRecGone` flag is the "swing gate": it prevents the stop gesture from fi
 `TRIGGER_KEYS` is a `Set` of `KeyboardEvent.key` values that all fire `onTrigger()`:
 
 - Built-in: `' '`, `'Enter'`, `'ArrowRight'`, `'ArrowLeft'`, `'ArrowUp'`, `'ArrowDown'`, `'AudioVolumeUp'`, `'AudioVolumeDown'`
-- User-learned: persisted in `localStorage` under the key `btTriggerKey`
 
-To add a new built-in trigger key, add it to the `TRIGGER_KEYS` set declaration in `app.js`.
+To add a new built-in trigger key, add it to the `TRIGGER_KEYS` set declaration in `js/input.js`.
 
-## Bluetooth button detection
+## Config persistence
 
-Users can teach the app a new key via **Settings → Bluetooth Button → Detect button press**. The app opens a full-screen overlay, listens for the next `keydown` in capture phase, saves the detected key to `localStorage`, and registers it in `TRIGGER_KEYS`. The saved key survives page reloads.
+User settings (`camera`, `countdown`, `replays`) are persisted to `localStorage` under the key `cfg` as a JSON object. The defaults are `{ camera: 'user', countdown: 5, replays: 1 }`. On startup, `js/state.js` loads and merges saved values over the defaults. `js/settings.js` calls `saveCfg()` after every pill change so settings survive page reloads.
 
 ## Tooling
 
@@ -116,7 +126,7 @@ Run `npm test` before committing to verify no regressions. Add new test files un
 ## Coding conventions
 
 - **No bundler or transpiler.** Do not introduce webpack, Rollup, Babel, or similar tools.
-- **Single IIFE.** All JS lives inside the immediately-invoked function expression in `app.js`. No ES modules.
+- **ES modules.** All JS lives in `js/` as native ES modules. `js/main.js` is the entry point.
 - **No comments for obvious code.** Only add comments for non-obvious logic or constraints.
 - **CSS custom properties are not used.** Colours and values are inlined; keep that consistent.
 - **iOS Safari is the primary target.** Test camera, recording, and replay on Safari on iPhone.

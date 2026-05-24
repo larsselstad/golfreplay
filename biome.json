@@ -7,7 +7,7 @@
 	},
 	"files": {
 		"ignoreUnknown": true,
-		"includes": ["app.js", "style.css", "playwright.config.js", "tests/**/*.js"]
+		"includes": ["js/**/*.js", "style.css", "playwright.config.js", "tests/**/*.js"]
 	},
 	"formatter": {
 		"enabled": true,
@@ -47,5 +47,6 @@
 				"organizeImports": "on"
 			}
 		}
-	}
+	},
+	"overrides": []
 }

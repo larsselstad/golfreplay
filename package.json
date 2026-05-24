@@ -2,11 +2,11 @@
   "name": "golfreplay",
   "version": "1.0.0",
   "description": "A web app for recording your golf swing and instantly replaying it — first at normal speed, then in slow motion.",
-  "main": "app.js",
+  "main": "js/main.js",
   "scripts": {
-    "lint": "biome lint app.js style.css",
-    "format": "biome format --write app.js style.css",
-    "check": "biome check --write app.js style.css",
+    "lint": "biome lint js/ style.css",
+    "format": "biome format --write js/ style.css",
+    "check": "biome check --write js/ style.css",
     "test": "playwright test --pass-with-no-tests",
     "test:ui": "playwright test --ui",
     "test:slow": "SLOWMO=500 playwright test --headed"

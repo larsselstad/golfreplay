@@ -42,3 +42,27 @@ test('clicking 2 replays makes it active and deactivates 1', async ({
     page.locator('#grp-replays .pill-btn[data-value="1"]'),
   ).not.toHaveClass(/active/);
 });
+
+test('countdown selection persists across page reload', async ({ page }) => {
+  await page.locator('#grp-countdown .pill-btn[data-value="3"]').click();
+  await page.reload();
+  await page.waitForFunction(
+    () => document.getElementById('version-badge')?.textContent !== '',
+  );
+  await page.click('#settings-btn');
+  await expect(
+    page.locator('#grp-countdown .pill-btn[data-value="3"]'),
+  ).toHaveClass(/active/);
+});
+
+test('replays selection persists across page reload', async ({ page }) => {
+  await page.locator('#grp-replays .pill-btn[data-value="2"]').click();
+  await page.reload();
+  await page.waitForFunction(
+    () => document.getElementById('version-badge')?.textContent !== '',
+  );
+  await page.click('#settings-btn');
+  await expect(
+    page.locator('#grp-replays .pill-btn[data-value="2"]'),
+  ).toHaveClass(/active/);
+});

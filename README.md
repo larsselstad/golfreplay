@@ -105,9 +105,9 @@ nvm install
 [Biome](https://biomejs.dev) is used for linting and formatting.
 
 ```bash
-npm run lint    # lint app.js and style.css
-npm run format  # format app.js and style.css in place
-npm run check   # lint + format together (recommended before committing)
+npm run lint    # lint js/**/*.js and style.css
+npm run format  # format js/**/*.js and style.css in place
+npm run check   # lint + format together (use before committing)
 ```
 
 ---
@@ -133,7 +133,16 @@ npx serve .
 |---|---|
 | `index.html` | HTML structure and asset references (versioned with `?v=N`) |
 | `style.css` | All styles |
-| `app.js` | All app logic |
+| `js/main.js` | Entry point — bootstraps the app and imports all other modules |
+| `js/state.js` | Shared DOM refs, config (`cfg`), and mutable state object |
+| `js/camera.js` | Camera startup (`startCamera`) |
+| `js/ui.js` | `setState`, `showError`, `hideError` |
+| `js/countdown.js` | Countdown logic |
+| `js/recording.js` | MediaRecorder recording logic |
+| `js/replay.js` | Replay playback logic |
+| `js/settings.js` | Settings panel, camera toggle, pill button wiring |
+| `js/face.js` | Face-trigger detection (face-api.js) |
+| `js/input.js` | Keyboard and pointer input handling |
 | `package.json` | npm scripts for linting, formatting, and testing |
 | `biome.json` | Biome configuration |
 | `playwright.config.js` | Playwright test configuration |
