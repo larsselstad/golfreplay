@@ -45,7 +45,7 @@ export function setState(s) {
       if (state.faceTriggerActive && cfg.camera === 'user') {
         instruction.textContent = 'Look at camera to start';
       } else if (state.speechTriggerActive) {
-        instruction.textContent = 'Say "go" to start';
+        instruction.textContent = 'Say "start" to start';
       } else {
         instruction.textContent = 'Tap anywhere or press button to start';
       }

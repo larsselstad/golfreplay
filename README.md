@@ -22,10 +22,19 @@ A web app for recording your golf swing and instantly replaying it — first at 
 | Action | Input |
 |---|---|
 | Start countdown / Stop recording / Skip replay | Tap the screen or press a keyboard key (Space, Enter, arrow keys) |
-| Hands-free start | Tap 👁 to arm face trigger, then hold eye contact for 1.5 s |
-| Hands-free stop | After swing, look back at camera and hold eye contact for 1 s |
+| Hands-free start (face) | Tap 👁 to arm face trigger, then hold eye contact for 1.5 s |
+| Hands-free stop (face) | After swing, look back at camera and hold eye contact for 1 s |
+| Hands-free via voice | Tap 🎤 to arm voice trigger, say **"start"** to begin countdown, say **"stop"** to end recording |
 | Switch camera on/off | Tap the 📷 button (bottom-right corner) |
 | Open settings | Tap the ⚙️ gear icon |
+
+---
+
+## Speech trigger
+
+Tap the 🎤 button (bottom-right corner) to arm the voice trigger. The app listens continuously using the browser's built-in Speech Recognition API. Say **"start"** while in idle state to begin the countdown, and **"stop"** while recording to end the clip. Only whole words match — "golf", "starting", "stopped", etc. will not fire accidentally.
+
+The button shows a pulsing ring while listening. If microphone permission is denied or the speech service is unavailable, the button shows ⚠ to indicate the feature is disarmed. Other transient errors (network hiccup, no audio) automatically retry.
 
 ---
 
@@ -120,8 +129,9 @@ npx serve .
 | `js/recording.js` | MediaRecorder recording logic |
 | `js/replay.js` | Replay playback logic |
 | `js/settings.js` | Settings panel — open/close, pill button wiring, `applyCamera` |
-| `js/controls.js` | HUD buttons — camera toggle (`toggleCameraFeed`) and face trigger button |
+| `js/controls.js` | HUD buttons — camera toggle (`toggleCameraFeed`), face trigger button, and speech trigger button |
 | `js/face.js` | Face-trigger detection (face-api.js) |
+| `js/speech.js` | Speech-trigger detection (Web Speech API) |
 | `js/recordtrigger.js` | Document keyboard and pointer listeners — fires `onTrigger()` to advance state |
 | `package.json` | npm scripts for linting, formatting, and testing |
 | `biome.json` | Biome configuration |

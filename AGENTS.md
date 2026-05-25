@@ -22,8 +22,9 @@ Golf Replay is a single-page web app (plain HTML + CSS + JS, no build tool) that
 | `js/recording.js` | MediaRecorder recording logic |
 | `js/replay.js` | Replay playback logic |
 | `js/settings.js` | Settings panel — open/close, pill button wiring, `applyCamera` |
-| `js/controls.js` | HUD buttons — camera toggle (`toggleCameraFeed`) and face trigger button |
+| `js/controls.js` | HUD buttons — camera toggle (`toggleCameraFeed`), face trigger button, and speech trigger button |
 | `js/face.js` | Face-trigger detection (face-api.js) |
+| `js/speech.js` | Speech-trigger detection (Web Speech API) — `isSpeechSupported`, `toggleSpeechTrigger`, `stopSpeechDetection`, `resumeSpeechDetection` |
 | `js/recordtrigger.js` | Document keyboard and pointer listeners — fires `onTrigger()` to advance state |
 | `package.json` | npm scripts for linting and formatting (Biome) |
 | `biome.json` | Biome configuration |
@@ -85,6 +86,20 @@ Any trigger (screen tap, keyboard key, or remote button key) advances the state 
 | Settings | `#settings-btn` | idle, countdown (hidden during recording / replay) |
 | Camera toggle | `#cam-toggle-btn` | idle only — turns camera feed on/off; gets `.cam-off` class when off |
 | Face trigger | `#face-trigger-wrap` / `#face-trigger-btn` | idle, front camera only |
+| Speech trigger | `#speech-trigger-btn` | idle only, when `isSpeechSupported()` is true; gets `.stt-listening` when armed |
+
+## Speech trigger (hands-free via voice)
+
+The 🎤 button (bottom-right, visible in idle state when the browser supports `SpeechRecognition`) enables voice-activated recording:
+
+- **Start:** In `idle` state, say **"start"** — the countdown begins automatically.
+- **Stop:** In `recording` state, say **"stop"** — recording ends.
+
+Commands are matched with whole-word regex (`/\bstart\b/` and `/\bstop\b/`) against the lowercased transcript to avoid false positives from words like "golf", "starting", or "stopped".
+
+**Error handling:** `not-allowed`, `service-not-allowed`, and `network` errors are fatal — `disarm(true)` is called and the button shows ⚠. All other errors (audio-capture, transient service issues) are non-fatal and the recogniser restarts automatically via `onend`.
+
+`state.speechTriggerActive` tracks whether voice detection is armed. Recognition is only restarted when `speechTriggerActive === true` **and** `appState` is `idle` or `recording`. It stops in `countdown` and `replay` states.
 
 ## Face trigger (hands-free)
 
