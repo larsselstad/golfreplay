@@ -4,6 +4,7 @@ import {
   stopFaceDetection,
   toggleFaceTrigger,
 } from './face.js';
+import { toggleSpeechTrigger } from './speech.js';
 import { cfg, state } from './state.js';
 
 const camToggleBtn = document.getElementById('cam-toggle-btn');
@@ -11,6 +12,7 @@ const faceTriggerBtn = document.getElementById('face-trigger-btn');
 const faceTriggerWrap = document.getElementById('face-trigger-wrap');
 const instruction = document.getElementById('instruction');
 const previewVid = document.getElementById('preview');
+const speechTriggerBtn = document.getElementById('speech-trigger-btn');
 
 export async function toggleCameraFeed() {
   if (state.appState !== 'idle') return;
@@ -55,4 +57,9 @@ camToggleBtn.addEventListener('click', (e) => {
 faceTriggerBtn.addEventListener('click', (e) => {
   e.stopPropagation();
   toggleFaceTrigger();
+});
+
+speechTriggerBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  toggleSpeechTrigger();
 });

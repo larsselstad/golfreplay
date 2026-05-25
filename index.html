@@ -6,11 +6,11 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-fullscreen">
   <title>Golf Replay</title>
-  <link rel="stylesheet" href="css/base.css?v=15">
-  <link rel="stylesheet" href="css/video.css?v=15">
-  <link rel="stylesheet" href="css/hud.css?v=15">
-  <link rel="stylesheet" href="css/controls.css?v=15">
-  <link rel="stylesheet" href="css/settings.css?v=15">
+  <link rel="stylesheet" href="css/base.css?v=16">
+  <link rel="stylesheet" href="css/video.css?v=16">
+  <link rel="stylesheet" href="css/hud.css?v=16">
+  <link rel="stylesheet" href="css/controls.css?v=16">
+  <link rel="stylesheet" href="css/settings.css?v=16">
 </head>
 <body>
 
@@ -42,9 +42,10 @@
 
   <button id="settings-btn" class="abs top-safe-12 right-4 size-44 glass rounded-full btn flex items-center justify-center text-white text-icon line-1 pointer-auto" aria-label="Settings">⚙</button>
 
-  <!-- Bottom-right controls: camera toggle + face trigger -->
+  <!-- Bottom-right controls: camera toggle + speech trigger + face trigger -->
   <div id="hud-bottom-right" class="abs bottom-safe-12 right-4 flex gap-1 items-center pointer-none">
     <button id="cam-toggle-btn" class="size-50 glass rounded-full btn flex items-center justify-center text-dim text-icon line-1 pointer-auto hidden" aria-label="Switch camera">📷</button>
+    <button id="speech-trigger-btn" class="size-50 glass rounded-full btn flex items-center justify-center text-dim text-icon line-1 transition-color pointer-auto hidden" aria-label="Voice trigger">🎤</button>
     <!-- Face trigger — visible in idle state with front camera only -->
     <div id="face-trigger-wrap" class="face-ring size-50 rounded-full pointer-auto hidden">
       <button id="face-trigger-btn" class="face-btn w-full h-full glass rounded-full btn flex items-center justify-center text-dim text-icon line-1 transition-color" aria-label="Face trigger">👁</button>
@@ -88,6 +89,6 @@
   </form>
 </div>
 
-<script type="module" src="js/main.js?v=15"></script>
+<script type="module" src="js/main.js?v=16"></script>
 </body>
 </html>

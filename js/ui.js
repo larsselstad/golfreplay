@@ -1,8 +1,13 @@
-// ui.js imports face.js, which imports countdown.js and recording.js, which
-// both import ui.js — circular deps are safe because all cross-module calls
+// ui.js imports face.js and speech.js, which import countdown.js and recording.js,
+// which both import ui.js — circular deps are safe because all cross-module calls
 // happen inside function bodies, never at module evaluation time.
 
 import { scheduleNextDetection, stopFaceDetection } from './face.js';
+import {
+  isSpeechSupported,
+  resumeSpeechDetection,
+  stopSpeechDetection,
+} from './speech.js';
 import { cfg, state } from './state.js';
 
 const camToggleBtn = document.getElementById('cam-toggle-btn');
@@ -13,6 +18,7 @@ const instruction = document.getElementById('instruction');
 const recIndicator = document.getElementById('rec-indicator');
 const replayInfo = document.getElementById('replay-info');
 const settingsBtn = document.getElementById('settings-btn');
+const speechTriggerBtn = document.getElementById('speech-trigger-btn');
 const statusBadge = document.getElementById('status-badge');
 
 export function setState(s) {
@@ -31,33 +37,43 @@ export function setState(s) {
   settingsBtn.classList.remove('hidden');
   faceTriggerWrap.classList.add('hidden');
   camToggleBtn.classList.add('hidden');
+  speechTriggerBtn.classList.add('hidden');
 
   switch (s) {
     case 'idle':
       statusBadge.textContent = 'Ready';
-      instruction.textContent =
-        state.faceTriggerActive && cfg.camera === 'user'
-          ? 'Look at camera to start'
-          : 'Tap anywhere or press button to start';
+      if (state.faceTriggerActive && cfg.camera === 'user') {
+        instruction.textContent = 'Look at camera to start';
+      } else if (state.speechTriggerActive) {
+        instruction.textContent = 'Say "go" to start';
+      } else {
+        instruction.textContent = 'Tap anywhere or press button to start';
+      }
       camToggleBtn.classList.remove('hidden');
+      if (isSpeechSupported()) speechTriggerBtn.classList.remove('hidden');
       if (cfg.camera === 'user') {
         faceTriggerWrap.classList.remove('hidden');
         if (state.faceTriggerActive) scheduleNextDetection();
       }
+      if (state.speechTriggerActive) resumeSpeechDetection();
       break;
     case 'countdown':
       statusBadge.textContent = 'Get Ready';
       instruction.textContent = 'Press again to cancel';
       settingsBtn.classList.add('hidden');
       stopFaceDetection();
+      stopSpeechDetection();
       break;
     case 'recording':
       statusBadge.classList.add('hidden');
       recIndicator.classList.remove('hidden');
-      instruction.textContent =
-        state.faceTriggerActive && cfg.camera === 'user'
-          ? 'Look at camera to stop'
-          : 'Press to stop recording';
+      if (state.faceTriggerActive && cfg.camera === 'user') {
+        instruction.textContent = 'Look at camera to stop';
+      } else if (state.speechTriggerActive) {
+        instruction.textContent = 'Say "stop" to stop recording';
+      } else {
+        instruction.textContent = 'Press to stop recording';
+      }
       settingsBtn.classList.add('hidden');
       if (state.faceTriggerActive && cfg.camera === 'user') {
         state.faceRecGone = false;
@@ -65,6 +81,7 @@ export function setState(s) {
       } else {
         stopFaceDetection();
       }
+      if (state.speechTriggerActive) resumeSpeechDetection();
       break;
     case 'replay':
       statusBadge.classList.add('hidden');
@@ -72,6 +89,7 @@ export function setState(s) {
       instruction.classList.add('hidden');
       settingsBtn.classList.add('hidden');
       stopFaceDetection();
+      stopSpeechDetection();
       break;
   }
 }
