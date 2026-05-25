@@ -60,7 +60,10 @@ function initRecognition() {
     if (state.appState === 'idle' && /\bstart\b/.test(transcript)) {
       stopSpeechDetection();
       startCountdown();
-    } else if (state.appState === 'recording' && /\bstop\b/.test(transcript)) {
+    } else if (
+      state.appState === 'recording' &&
+      /\bstopp?\b/.test(transcript)
+    ) {
       stopSpeechDetection();
       stopRecording();
     }
