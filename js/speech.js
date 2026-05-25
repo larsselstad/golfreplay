@@ -13,13 +13,15 @@ let recognition = null;
 let restartTimeoutId = null;
 
 const speechTriggerBtn = document.getElementById('speech-trigger-btn');
+const instruction = document.getElementById('instruction');
 
 function startListening() {
   if (!state.speechTriggerActive || !recognition) return;
+  console.log('[speech] startListening — appState:', state.appState);
   try {
     recognition.start();
-  } catch {
-    // Ignore InvalidStateError if recognition is already starting/started
+  } catch (err) {
+    console.log('[speech] startListening error (ignored):', err?.message);
   }
 }
 
@@ -49,6 +51,12 @@ function initRecognition() {
       .map((r) => r[0].transcript)
       .join(' ')
       .toLowerCase();
+    console.log(
+      '[speech] onresult — appState:',
+      state.appState,
+      '| transcript:',
+      transcript,
+    );
     if (state.appState === 'idle' && /\bstart\b/.test(transcript)) {
       stopSpeechDetection();
       startCountdown();
@@ -59,6 +67,12 @@ function initRecognition() {
   };
 
   recognition.onend = () => {
+    console.log(
+      '[speech] onend — appState:',
+      state.appState,
+      '| speechTriggerActive:',
+      state.speechTriggerActive,
+    );
     if (
       state.speechTriggerActive &&
       (state.appState === 'idle' || state.appState === 'recording') &&
@@ -69,6 +83,7 @@ function initRecognition() {
   };
 
   recognition.onerror = (e) => {
+    console.log('[speech] onerror — error:', e.error);
     if (e.error === 'aborted') return;
     if (e.error === 'no-speech') return; // onend will handle restart
     const FATAL_ERRORS = new Set([
@@ -95,6 +110,12 @@ export function stopSpeechDetection() {
 }
 
 export function resumeSpeechDetection() {
+  console.log(
+    '[speech] resumeSpeechDetection — appState:',
+    state.appState,
+    '| speechTriggerActive:',
+    state.speechTriggerActive,
+  );
   if (!state.speechTriggerActive || !recognition) return;
   if (state.appState !== 'idle' && state.appState !== 'recording') return;
   if (document.hidden) return;
@@ -105,6 +126,7 @@ export function toggleSpeechTrigger() {
   if (!isSpeechSupported()) return;
   if (state.speechTriggerActive) {
     disarm();
+    instruction.textContent = 'Tap anywhere or press button to start';
   } else {
     if (speechTriggerBtn.textContent === '⚠') {
       speechTriggerBtn.textContent = '🎤';
@@ -112,6 +134,7 @@ export function toggleSpeechTrigger() {
     if (!recognition) initRecognition();
     state.speechTriggerActive = true;
     speechTriggerBtn.classList.add('stt-listening');
+    instruction.textContent = 'Say "start" to start';
     startListening();
   }
 }

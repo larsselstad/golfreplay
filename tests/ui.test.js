@@ -9,8 +9,8 @@ test.beforeEach(async ({ page }) => {
   );
 });
 
-test('version badge shows v16', async ({ page }) => {
-  await expect(page.locator('#version-badge')).toHaveText('v16');
+test('version badge shows v17', async ({ page }) => {
+  await expect(page.locator('#version-badge')).toHaveText('v17');
 });
 
 test('status badge shows Ready', async ({ page }) => {
