@@ -49,10 +49,10 @@ function initRecognition() {
       .map((r) => r[0].transcript)
       .join(' ')
       .toLowerCase();
-    if (state.appState === 'idle' && transcript.includes('go')) {
+    if (state.appState === 'idle' && /\bstart\b/.test(transcript)) {
       stopSpeechDetection();
       startCountdown();
-    } else if (state.appState === 'recording' && transcript.includes('stop')) {
+    } else if (state.appState === 'recording' && /\bstop\b/.test(transcript)) {
       stopSpeechDetection();
       stopRecording();
     }
@@ -71,8 +71,16 @@ function initRecognition() {
   recognition.onerror = (e) => {
     if (e.error === 'aborted') return;
     if (e.error === 'no-speech') return; // onend will handle restart
-    // Fatal errors: permission denied or service unavailable
-    disarm(true);
+    const FATAL_ERRORS = new Set([
+      'not-allowed',
+      'service-not-allowed',
+      'network',
+    ]);
+    if (FATAL_ERRORS.has(e.error)) {
+      disarm(true);
+    }
+    // All other errors (audio-capture, bad-grammar, language-not-supported, etc.)
+    // are transient — let onend handle the restart.
   };
 }
 
@@ -94,6 +102,7 @@ export function resumeSpeechDetection() {
 }
 
 export function toggleSpeechTrigger() {
+  if (!isSpeechSupported()) return;
   if (state.speechTriggerActive) {
     disarm();
   } else {
